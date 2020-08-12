@@ -1,0 +1,7 @@
+**.DS_Store
+*.env
+*.vscode
+pycat.egg-info/
+**/__pycache__/
+.python-version
+**.mpypy_cache/
