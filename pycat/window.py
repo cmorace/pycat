@@ -20,11 +20,16 @@ class Window():
         enforce_window_limits=True
     ):
         self.__window: PygletWindow = PygletWindow(width,height)
+
+        self.__active_keys: Set[int] = set()
         self.__window.on_key_press = self.__on_key_press
         self.__window.on_key_release = self.__on_key_release
-        self.__window.on_draw = self.__auto_draw
-        self.__active_keys: Set[int] = set()
+        self.__user_key_press = lambda key,mod: None
+        self.__user_key_release = lambda key,mod: None
+        
 
+        self.__window.on_draw = self.__auto_draw
+        
         self.__enforce_window_limits = enforce_window_limits
         self.__pre_draw_function = lambda: None
         self.__post_draw_function = lambda: None
@@ -41,7 +46,7 @@ class Window():
             self.__background_sprite.position = self.get_center()
 
 
-    # Adding things to window
+    # Sprite / Label management
 
     def add_label(self, label: Label):
         self.__labels.append(label)
@@ -109,12 +114,6 @@ class Window():
     def __on_key_release(self, key, mod):
         self.__user_key_release(key,mod)
         self.__active_keys.remove(key)
-
-    def __user_key_press(self, key, mod):
-        pass
-    def __user_key_release(self, key, mod):
-        pass
-
 
     # Runtime
 

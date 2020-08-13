@@ -1,4 +1,4 @@
-from pycat.collision import is_buffered_aabb_collision
+from pycat.collision import is_aabb_collision
 from pycat.sprite import Sprite
 
 from pyglet.clock import schedule_interval as pyglet_schedule_interval

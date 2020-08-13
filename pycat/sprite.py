@@ -224,7 +224,7 @@ class Sprite:
     def height(self) -> float:
         return self._sprite.height
 
-    def change_image(self, img_file_path: str):
+    def set_image(self, img_file_path: str):
         if img_file_path.endswith(".gif"):
             self._sprite.image = get_animation_from_file(img_file_path)
         else:
@@ -235,6 +235,13 @@ class Sprite:
             self._sprite._animate(dt)
         else:
             print_warning("this sprite has no animation")
+
+    ################################################################################
+    # Scratch languge
+    ################################################################################
+
+    def change_x(self, step_size: int):
+        self.x += step_size
 
     ################################################################################
     # Framework methods
