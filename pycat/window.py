@@ -5,7 +5,6 @@ from pycat.sprite import Sprite
 from pycat.sprite_list import SpriteList
 from pycat.label import Label
 from pycat.scheduler import Scheduler
-from pycat.utility.list import flatten
 
 from pyglet.clock import schedule_interval as pyglet_schedule_interval
 from pyglet.clock import schedule_once as pyglet_schedule_once
@@ -30,13 +29,31 @@ class Window():
         self.__pre_draw_function = lambda: None
         self.__post_draw_function = lambda: None
 
-        self.__sprite_lists = [SpriteList()]
-        self.__labels = []
+        # First element of __sprite_lists reserved for Sprites directly added to the window.
+        # Remainder of list contains SpriteLists that were added by user.
+        self.__sprite_lists: [SpriteList] = [SpriteList()]
+
+        self.__labels: [label] = []
 
         self.__background_sprite = None
         if background_image:
             self.__background_sprite = Sprite(background_image)
-            self.__background_sprite.set_position(self.get_center())
+            self.__background_sprite.position = self.get_center()
+
+
+    # Adding things to window
+
+    def add_label(self, label: Label):
+        self.__labels.append(label)
+
+    def add_sprite_list(self, sprite_list: SpriteList):
+        self.__sprite_lists.append(sprite_list)
+
+    def add_sprite(self, sprite: Sprite):
+        self.__sprite_lists[0].add(sprite)
+        
+    def remove_sprite(self, sprite: Sprite):
+        self.__sprite_lists[0].remove(sprite)
 
 
     # Drawing
@@ -65,14 +82,14 @@ class Window():
             for s in all_sprites:
                 s.limit_position_to_area(0, self.width, 0, self.height)
 
-        drawables = all_sprites + self.__labels
-        drawables.sort(key=lambda d: 1000 if not hasattr(d,'layer') else d.layer)
+        objects_to_draw = all_sprites + self.__labels
+        objects_to_draw.sort(key=lambda o: o.layer)
 
-        for d in drawables:
-            d.draw()       
+        for o in objects_to_draw:
+            o.draw()       
 
         self.__post_draw_function() 
-        
+
 
     # Key input
 
@@ -103,21 +120,6 @@ class Window():
 
     def run(self):
         app.run()
-
-
-    # Adding things to window
-
-    def add_label(self, label: Label):
-        self.__labels.append(label)
-
-    def add_sprite_list(self, sprite_list: SpriteList):
-        self.__sprite_lists.append(sprite_list)
-
-    def add_sprite(self, sprite: Sprite):
-        self.__sprite_lists[0].add(sprite)
-        
-    def remove_sprite(self, sprite: Sprite):
-        self.__sprite_lists[0].remove(sprite)
 
     
     # Helpers

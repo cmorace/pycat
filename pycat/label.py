@@ -6,9 +6,11 @@ class Label:
                  text: str,
                  x: float = 0,
                  y: float = 0,
+                 layer: int = 0,
                  font_size: int = 20):
         self.__label = PygletLabel(text, x=x, y=y)
         self.__label.font_size = font_size
+        self._layer = layer
 
     @property
     def text(self) -> str:
@@ -25,6 +27,14 @@ class Label:
     @font_size.setter
     def font_size(self, font_size: int):
         self.__label.font_size = font_size
+
+    @property
+    def layer(self) -> int:
+        return self._layer
+
+    @layer.setter
+    def layer(self, layer: int):
+        self._layer = layer
 
     def draw(self):
         self.__label.draw()
