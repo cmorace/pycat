@@ -1,14 +1,15 @@
 from pyglet.window import Window as PygletWindow
 from pyglet import app
-from pycat.geometry.point import Point
-from pycat.sprite import Sprite
-from pycat.sprite_list import SpriteList
-from pycat.label import Label
-from pycat.scheduler import Scheduler
 
 from pyglet.clock import schedule_interval as pyglet_schedule_interval
 from pyglet.clock import schedule_once as pyglet_schedule_once
 from pyglet.clock import unschedule as pyglet_unschedule
+
+from pycat.geometry.point import Point
+from pycat.sprite import Sprite, UnmanagedSprite
+from pycat.label import Label
+from pycat.scheduler import Scheduler
+
 
 class Window():
 
@@ -27,7 +28,6 @@ class Window():
         self.__user_key_press = lambda key,mod: None
         self.__user_key_release = lambda key,mod: None
         
-
         self.__window.on_draw = self.__auto_draw
         
         self.__enforce_window_limits = enforce_window_limits
@@ -36,13 +36,15 @@ class Window():
 
         # First element of __sprite_lists reserved for Sprites directly added to the window.
         # Remainder of list contains SpriteLists that were added by user.
-        self.__sprite_lists: [SpriteList] = [SpriteList()]
+        self.__sprites: [Sprite] = []
+        self.__tagmap = {}
 
-        self.__labels: [label] = []
+        self.__labels: [Label] = []
 
         self.__background_sprite = None
         if background_image:
-            self.__background_sprite = Sprite(background_image)
+            self.__background_sprite = UnmanagedSprite(self)
+            self.__background_sprite.set_image(background_image)
             self.__background_sprite.position = self.get_center()
 
 
@@ -51,14 +53,50 @@ class Window():
     def add_label(self, label: Label):
         self.__labels.append(label)
 
-    def add_sprite_list(self, sprite_list: SpriteList):
-        self.__sprite_lists.append(sprite_list)
+    def create_sprite(self, sprite_cls):
+        sprite = sprite_cls(window=self)
+        self.__register_sprite(sprite)
+        return sprite
 
-    def add_sprite(self, sprite: Sprite):
-        self.__sprite_lists[0].add(sprite)
+    def create_sprite_with_tag(self, sprite_cls, tag):
+        sprite = sprite_cls(window=self, tags=[tag])
+        self.__register_sprite(sprite)
+        return sprite        
+
+    def create_sprite_with_tags(self, sprite_cls, tags):
+        sprite = sprite_cls(window=self, tags=tags)
+        self.__register_sprite(sprite)
+        return sprite    
+
+    def delete_sprite(self, sprite):
+        self.__deregister_sprite(sprite)
+
+    def delete_sprites_with_tag(self, tag):
+        # this could be optimized
+        for sprite in self.__tagmap.get(tag,[]):            
+            self.__deregister_sprite(sprite)
+        # leaves tag in __tagmap 
+
+    def __register_sprite(self, sprite):
+        self.__sprites.append(sprite)
+        for tag in sprite.get_tags():
+            if tag not in self.__tagmap:
+                self.__tagmap[tag] = []
+            self.__tagmap[tag].append(sprite)
+
+        sprite.on_create()
+        pyglet_schedule_interval(sprite.on_update, 1/60)            
+
+    def __deregister_sprite(self, sprite):
+        pyglet_unschedule(sprite.on_update)
         
-    def remove_sprite(self, sprite: Sprite):
-        self.__sprite_lists[0].remove(sprite)
+        self.__sprites.remove(sprite)
+        for tag,sprites in self.__tagmap.items():
+            if sprite in sprites:
+                self.__tagmap[tag] = [s for s in self.__tagmap[tag] if s is not sprite]
+
+    def get_sprites_with_tag(self, tag):
+        return self.__tagmap.get(tag, [])
 
 
     # Drawing
@@ -80,14 +118,12 @@ class Window():
 
         if self.__background_sprite:
             self.__background_sprite.draw()
-        
-        all_sprites = SpriteList.flatten_sprite_lists(self.__sprite_lists)
 
         if self.__enforce_window_limits:
-            for s in all_sprites:
+            for s in self.__sprites:
                 s.limit_position_to_area(0, self.width, 0, self.height)
 
-        objects_to_draw = all_sprites + self.__labels
+        objects_to_draw = self.__sprites + self.__labels
         objects_to_draw.sort(key=lambda o: o.layer)
 
         for o in objects_to_draw:

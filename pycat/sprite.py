@@ -8,36 +8,26 @@ from pycat.debug import print_warning
 
 from random import randint
 
-class Sprite:
+class UnmanagedSprite:
+    '''A Sprite that is not "managed" by a Window.
+    '''    
 
     def __init__(
         self, 
-        img_file_path: Optional[str] = None, 
-        x: float = 0, 
-        y: float = 0,
-        layer: int = 0,
+        tags: [str] = [],
+        call_on_create = True
     ):
-        """The constructor loads an image or GIF animation and sets the
-        initial (x,y) position of the sprite. Subclasses of the Sprite
-        class can override the on_create method to initialize properties
-        without needing to write a new __init__() method. Note that on_create
-        is only called when the sprite is added to the Window or a SpriteList.
+        self.__tags = tags
 
-        Args:
-            img_file_path (str): path to a bitmap image or GIF animation
-            x (float, optional): initial x co-ordinate. Defaults to 0.
-            y (float, optional): initial y co-ordinate. Defaults to 0.
-        """
-        if not img_file_path:
-            img = get_checker_texture()
-        elif img_file_path.endswith(".gif"):
-            img = get_animation_from_file(img_file_path)
-        else:
-            img = get_texture_from_file(img_file_path)
+        img = get_checker_texture()
+        self._sprite: PygletSprite = PygletSprite(img)
 
-        self._sprite: PygletSprite = PygletSprite(img, x=x, y=y)
+        self._layer = 0
 
-        self._layer = layer
+        if call_on_create:
+            self.on_create()
+
+
 
     ################################################################################
     # Override these to set the sprite's behavior
@@ -95,9 +85,6 @@ class Sprite:
     def goto(self, other_sprite: 'Sprite'):
         self.position = other_sprite.position
 
-    def goto_random_position(self, window: 'Window'):
-        self.x = randint(0, window.width-self.width)
-        self.y = randint(0, window.height-self.height)
 
     ################################################################################
     # Sprite Rotation
@@ -251,4 +238,44 @@ class Sprite:
         # draws on current window set by pyglet backend
         self._sprite.draw()
 
+    def get_tags(self):
+        return self.__tags
+
+
+
     
+
+class Sprite(UnmanagedSprite):
+    '''
+        A Sprite that is "managed" by a Window. 
+        Never instantiate this class directly, it may only be created by a Window. 
+        The connection to a Window provides additional functionality.
+    '''
+
+    def __init__(
+        self, 
+        window,
+        tags: [str] = []        
+    ):        
+        self.__window = window
+        # Prevent UnmanagedSprite's __init__ from calling on_create, instead the Window will do it after everything (eg, tags) are setup.
+        super().__init__(tags,call_on_create=False) 
+        
+
+    def goto_random_position(self):
+        self.x = randint(0, self.__window.width-self.width)
+        self.y = randint(0, self.__window.height-self.height)
+
+    def delete(self):
+        self.__window.delete_sprite(self)
+
+    def touching_any_sprite_with_tag(self, tag):
+        '''
+            Checks if this sprite is touching any other sprite with appropiate tag. 
+            Note: only sprites registered with the same Window are checked.
+        '''
+        from pycat.collision import is_aabb_collision
+        for s in self.__window.get_sprites_with_tag(tag):
+            if is_aabb_collision(self, s):
+                return True
+        return False        
