@@ -10,3 +10,6 @@ run ```pip install -e .``` from the directory holding ```setup.py```
 - a function unscheduling itself (update / sprite list)
 - pizza cat costume no change
 - use Scheduler
+- add sounds / music
+- on click
+- follow mouse pointer

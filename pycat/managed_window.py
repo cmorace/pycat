@@ -68,7 +68,12 @@ class ManagedWindow():
 
     def delete_sprite(self, sprite):
         self.__deregister_sprite(sprite)
-        
+
+    def delete_sprites_with_tag(self, tag):
+        # this could be optimized
+        for sprite in self.__tagmap.get(tag,[]):            
+            self.__deregister_sprite(sprite)
+        # leaves tag in __tagmap 
 
     def __register_sprite(self, sprite):
         self.__sprites.append(sprite)
