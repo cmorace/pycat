@@ -261,13 +261,23 @@ class Sprite(UnmanagedSprite):
         # Prevent UnmanagedSprite's __init__ from calling on_create, instead the Window will do it after everything (eg, tags) are setup.
         super().__init__(tags,call_on_create=False) 
         
+    @property
+    def window(self) -> float:
+        return self.__window        
+
+    def delete(self):
+        self.__window.delete_sprite(self)
 
     def goto_random_position(self):
         self.x = randint(0, self.__window.width-self.width)
         self.y = randint(0, self.__window.height-self.height)
 
-    def delete(self):
-        self.__window.delete_sprite(self)
+    def touching_window_edge(self) -> bool:
+        return (
+               self.x <= 0
+            or self.x >= self.__window.width
+            or self.y <= 0
+            or self.y >= self.__window.height)
 
     def touching_any_sprite_with_tag(self, tag):
         '''
