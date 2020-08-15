@@ -14,8 +14,7 @@ class UnmanagedSprite:
 
     def __init__(
         self, 
-        tags: [str] = [],
-        call_on_create = True
+        tags: [str] = []
     ):
         self.__tags = tags
 
@@ -24,24 +23,6 @@ class UnmanagedSprite:
 
         self._layer = 0
 
-        if call_on_create:
-            self.on_create()
-
-
-
-    ################################################################################
-    # Override these to set the sprite's behavior
-    ################################################################################
-
-    def on_create(self):
-        """Called (once) when added to a window.
-        """
-        pass
-
-    def on_update(self, dt):
-        """Called 60 times a second when added to a window. Stops being called when removed from window.
-        """
-        pass
 
     ################################################################################
     # Sprite Position
@@ -250,6 +231,10 @@ class Sprite(UnmanagedSprite):
         A Sprite that is "managed" by a Window. 
         Never instantiate this class directly, it may only be created by a Window. 
         The connection to a Window provides additional functionality.
+        Primarially:
+        - on_create is called when the sprite is added to the window
+        - on_update is scheduled to be called 60 times a second
+        - on_click is called when the sprite is clicked!
     '''
 
     def __init__(
@@ -258,9 +243,38 @@ class Sprite(UnmanagedSprite):
         tags: [str] = []        
     ):        
         self.__window = window
-        # Prevent UnmanagedSprite's __init__ from calling on_create, instead the Window will do it after everything (eg, tags) are setup.
-        super().__init__(tags,call_on_create=False) 
-        
+        super().__init__(tags) 
+
+    ################################################################################
+    # Override these to set the sprite's behavior
+    ################################################################################
+
+    def on_create(self):
+        """Called (once) when added to a window.
+        """
+        pass
+
+    def on_update(self, dt):
+        """Called 60 times a second when added to a window. Stops being called when removed from window.
+        """
+        pass
+
+    def on_click(self, x, y, button, modifiers):
+        """Called when ANY mouse button is clicked while the cursor is over this sprite.
+        """
+        pass
+
+    def on_left_click(self):
+        """Simplified function signature for left clicks only.
+        """
+        pass
+
+
+    ################################################################################
+    # The rest
+    ################################################################################
+
+
     @property
     def window(self) -> float:
         return self.__window        

@@ -5,7 +5,10 @@ from pyglet.clock import schedule_interval as pyglet_schedule_interval
 from pyglet.clock import schedule_once as pyglet_schedule_once
 from pyglet.clock import unschedule as pyglet_unschedule
 
+from pyglet.window.mouse import LEFT as LEFT_MOUSE_BUTTON
+
 from pycat.geometry.point import Point
+from pycat.geometry.region import point_in_region
 from pycat.sprite import Sprite, UnmanagedSprite
 from pycat.label import Label
 from pycat.scheduler import Scheduler
@@ -27,6 +30,8 @@ class Window():
         self.__window.on_key_release = self.__on_key_release
         self.__user_key_press = lambda key,mod: None
         self.__user_key_release = lambda key,mod: None
+
+        self.__window.on_mouse_press = self.__on_mouse_press
         
         self.__window.on_draw = self.__auto_draw
         
@@ -150,6 +155,27 @@ class Window():
     def __on_key_release(self, key, mod):
         self.__user_key_release(key,mod)
         self.__active_keys.remove(key)
+
+
+    # Mouse input
+
+    def __on_mouse_press(self, x, y, button, modifiers):
+
+        for sprite in self.__sprites:
+
+            llc = Point(sprite.position.x - sprite.width/2, sprite.position.y - sprite.height/2)
+            urc = Point(sprite.position.x + sprite.width/2, sprite.position.y + sprite.height/2)
+
+            if point_in_region(
+                lower_left_corner = llc,
+                upper_right_corner = urc,
+                x = x,
+                y = y
+            ):
+                sprite.on_click(x,y,button,modifiers)
+                if button == LEFT_MOUSE_BUTTON:
+                    sprite.on_left_click()
+
 
     # Runtime
 
