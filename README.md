@@ -11,5 +11,6 @@ run ```pip install -e .``` from the directory holding ```setup.py```
 - pizza cat costume no change
 - use Scheduler
 - add sounds / music
-- on click
-- follow mouse pointer
+- on click (done)
+- follow mouse pointer (done)
+- ? rename Point -> Vector (deltas etc)

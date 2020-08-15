@@ -1,9 +1,11 @@
 from typing import Tuple, Optional
 from pyglet.sprite import Sprite as PygletSprite
 
+from math import pi, sin, cos, sqrt, atan
+
 from pycat.geometry.point import Point
 from pycat.image import get_animation_from_file, get_texture_from_file, get_checker_texture
-from pycat.math import get_direction_from_degrees
+from pycat.math import get_direction_from_degrees, radian_to_degree, get_rotation_in_degrees_to_point_towards
 from pycat.debug import print_warning
 
 from random import randint
@@ -88,6 +90,10 @@ class UnmanagedSprite:
             degrees (float): positive direction is counter-clockwise
         """
         self._sprite.rotation -= degrees
+
+    def point_toward_sprite(self, sprite):
+        self._sprite.rotation = get_rotation_in_degrees_to_point_towards(self.position, sprite.position)
+        
 
     ################################################################################
     # Sprite Motion
@@ -303,3 +309,6 @@ class Sprite(UnmanagedSprite):
             if is_aabb_collision(self, s):
                 return True
         return False        
+
+    def point_toward_mouse_cursor(self):
+        self._sprite.rotation = get_rotation_in_degrees_to_point_towards(self.position, self.__window.mouse_position)

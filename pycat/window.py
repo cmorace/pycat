@@ -33,6 +33,10 @@ class Window():
 
         self.__window.on_mouse_press = self.__on_mouse_press
         
+        self.__mouse_position = Point(0,0)
+        self.__mouse_delta = Point(0,0)
+        self.__window.on_mouse_motion = self.__on_mouse_motion
+
         self.__window.on_draw = self.__auto_draw
         
         self.__enforce_window_limits = enforce_window_limits
@@ -159,6 +163,13 @@ class Window():
 
     # Mouse input
 
+    def __on_mouse_motion(self, x, y, dx, dy):
+        self.__mouse_position.x = x
+        self.__mouse_position.y = y
+        self.__mouse_delta.x = dx
+        self.__mouse_delta.y = dy
+
+
     def __on_mouse_press(self, x, y, button, modifiers):
 
         for sprite in self.__sprites:
@@ -201,6 +212,13 @@ class Window():
         size: Tuple = self.__window.get_size()
         return size[1]    
 
+    @property
+    def mouse_position(self) -> Point:
+        return self.__mouse_position
+
+    @property
+    def mouse_delta(self) -> Point:
+        return self.__mouse_delta
     
 
     
