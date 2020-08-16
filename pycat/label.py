@@ -13,6 +13,22 @@ class Label:
         self._layer = layer
 
     @property
+    def x(self) -> float:
+        return self.__label.x
+
+    @x.setter
+    def x(self, new_x: float):
+        self.__label.x = new_x
+
+    @property
+    def y(self) -> float:
+        return self.__label.y
+
+    @y.setter
+    def y(self, new_y: float):
+        self.__label.y = new_y
+
+    @property
     def text(self) -> str:
         return self.__label.text
 
