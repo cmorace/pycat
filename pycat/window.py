@@ -52,9 +52,7 @@ class Window():
 
         self.__background_sprite = None
         if background_image:
-            self.__background_sprite = UnmanagedSprite(self)
-            self.__background_sprite.set_image(background_image)
-            self.__background_sprite.position = self.get_center()
+            self.set_background_image(background_image)
 
 
     # Sprite / Label management
@@ -112,6 +110,11 @@ class Window():
 
     def clear(self):
         self.__window.clear()
+
+    def set_background_image(self, image):
+        self.__background_sprite = UnmanagedSprite(self)
+        self.__background_sprite.set_image(image)
+        self.__background_sprite.position = self.get_center()
 
     def set_pre_draw(self, pre_draw_function):
         self.__pre_draw_function = pre_draw_function
