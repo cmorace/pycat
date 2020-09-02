@@ -60,7 +60,7 @@ class Window():
     def add_label(self, label: Label):
         self.__labels.append(label)
 
-    def create_sprite(self, sprite_cls):
+    def create_sprite(self, sprite_cls=Sprite):
         sprite = sprite_cls(window=self)
         self.__register_sprite(sprite)
         return sprite
@@ -161,7 +161,8 @@ class Window():
 
     def __on_key_release(self, key, mod):
         self.__user_key_release(key,mod)
-        self.__active_keys.remove(key)
+        if key in self.__active_keys:
+            self.__active_keys.remove(key)
 
 
     # Mouse input

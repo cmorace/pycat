@@ -18,12 +18,14 @@ class UnmanagedSprite:
         self, 
         tags: [str] = []
     ):
-        self.__tags = tags
+        self._tags = tags
 
         img = get_checker_texture()
         self._sprite: PygletSprite = PygletSprite(img)
 
         self._layer = 0
+
+        self._image_file_path = ''
 
 
     ################################################################################
@@ -198,11 +200,17 @@ class UnmanagedSprite:
     def height(self) -> float:
         return self._sprite.height
 
-    def set_image(self, img_file_path: str):
-        if img_file_path.endswith(".gif"):
-            self._sprite.image = get_animation_from_file(img_file_path)
+    @property
+    def image(self) -> str:
+        return self._image_file_path
+
+    @image.setter
+    def image(self, image_file_path: str):
+        self._image_file_path = image_file_path
+        if image_file_path.endswith(".gif"):
+            self._sprite.image = get_animation_from_file(image_file_path)
         else:
-            self._sprite.image = get_texture_from_file(img_file_path)
+            self._sprite.image = get_texture_from_file(image_file_path)
 
     def set_animation_dt(self, dt: float):
         if self._sprite._animation:
@@ -226,7 +234,7 @@ class UnmanagedSprite:
         self._sprite.draw()
 
     def get_tags(self):
-        return self.__tags
+        return self._tags
 
 
 
@@ -248,7 +256,7 @@ class Sprite(UnmanagedSprite):
         window,
         tags: [str] = []        
     ):        
-        self.__window = window
+        self._window = window
         super().__init__(tags) 
 
     ################################################################################
@@ -283,21 +291,21 @@ class Sprite(UnmanagedSprite):
 
     @property
     def window(self) -> float:
-        return self.__window        
+        return self._window        
 
     def delete(self):
-        self.__window.delete_sprite(self)
+        self._window.delete_sprite(self)
 
     def goto_random_position(self):
-        self.x = randint(0, self.__window.width-self.width)
-        self.y = randint(0, self.__window.height-self.height)
+        self.x = randint(0, self._window.width-self.width)
+        self.y = randint(0, self._window.height-self.height)
 
     def touching_window_edge(self) -> bool:
         return (
                self.x <= 0
-            or self.x >= self.__window.width
+            or self.x >= self._window.width
             or self.y <= 0
-            or self.y >= self.__window.height)
+            or self.y >= self._window.height)
 
     def touching_any_sprite_with_tag(self, tag):
         '''
@@ -305,10 +313,10 @@ class Sprite(UnmanagedSprite):
             Note: only sprites registered with the same Window are checked.
         '''
         from pycat.collision import is_aabb_collision
-        for s in self.__window.get_sprites_with_tag(tag):
+        for s in self._window.get_sprites_with_tag(tag):
             if is_aabb_collision(self, s):
                 return True
         return False        
 
     def point_toward_mouse_cursor(self):
-        self._sprite.rotation = get_rotation_in_degrees_to_point_towards(self.position, self.__window.mouse_position)
+        self._sprite.rotation = get_rotation_in_degrees_to_point_towards(self.position, self._window.mouse_position)
