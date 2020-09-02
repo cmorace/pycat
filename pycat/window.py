@@ -113,7 +113,7 @@ class Window():
 
     def set_background_image(self, image):
         self.__background_sprite = UnmanagedSprite(self)
-        self.__background_sprite.set_image(image)
+        self.__background_sprite.image = image
         self.__background_sprite.position = self.get_center()
 
     def set_pre_draw(self, pre_draw_function):

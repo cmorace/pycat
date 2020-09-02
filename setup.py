@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pycat",
-    version="0.0.1",
+    version="0.0.2",
     author="Charles Morace",
     author_email="charles.c.morace@gmail.com",
     description="pycat: A Python game framework simplifying game developement with pyglet.",

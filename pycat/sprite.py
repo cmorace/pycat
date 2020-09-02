@@ -95,7 +95,9 @@ class UnmanagedSprite:
 
     def point_toward_sprite(self, sprite):
         self._sprite.rotation = get_rotation_in_degrees_to_point_towards(self.position, sprite.position)
-        
+
+    def point_toward_position(self, x, y):
+        self._sprite.rotation = get_rotation_in_degrees_to_point_towards(self.position, Point(x,y))        
 
     ################################################################################
     # Sprite Motion
@@ -297,8 +299,8 @@ class Sprite(UnmanagedSprite):
         self._window.delete_sprite(self)
 
     def goto_random_position(self):
-        self.x = randint(0, self._window.width-self.width)
-        self.y = randint(0, self._window.height-self.height)
+        self.x = randint(0, self._window.width)
+        self.y = randint(0, self._window.height)
 
     def touching_window_edge(self) -> bool:
         return (
