@@ -238,7 +238,12 @@ class UnmanagedSprite:
     def get_tags(self):
         return self._tags
 
+    ################################################################################
+    # Printing methods
+    ################################################################################
 
+    def __str__(self):
+        return "Sprite '"+self._image_file_path+"' at ("+str(self.x)+', '+str(self.y)+')'
 
     
 
@@ -256,7 +261,7 @@ class Sprite(UnmanagedSprite):
     def __init__(
         self, 
         window,
-        tags: [str] = []        
+        tags: [str] = []     
     ):        
         self._window = window
         super().__init__(tags) 
@@ -308,6 +313,13 @@ class Sprite(UnmanagedSprite):
             or self.x >= self._window.width
             or self.y <= 0
             or self.y >= self._window.height)
+
+    def touching_any_sprite(self):
+        from pycat.collision import is_aabb_collision        
+        for s in self._window.get_all_sprites():
+            if self is not s and is_aabb_collision(self, s):
+                return True
+        return False             
 
     def touching_any_sprite_with_tag(self, tag):
         '''

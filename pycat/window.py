@@ -14,6 +14,9 @@ from pycat.label import Label
 from pycat.scheduler import Scheduler
 
 
+class SpriteCreationError(Exception):
+    pass
+
 class Window():
 
     def __init__(
@@ -60,20 +63,37 @@ class Window():
     def add_label(self, label: Label):
         self.__labels.append(label)
 
-    def create_sprite(self, sprite_cls=Sprite):
-        sprite = sprite_cls(window=self)
-        self.__register_sprite(sprite)
+    def create_sprite(self, sprite_cls=Sprite, **kwargs):
+        # Sanity check kwargs
+        for arg_name in kwargs:
+            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale']:
+                raise SpriteCreationError("You may not set '"+arg_name+"' when creating a sprite")
+
+        if 'tag' in kwargs and 'tags' in kwargs:
+            raise SpriteCreationError("You may not specify both 'tag' and 'tags' when creating a sprite")
+
+        # Create a class
+        tags = kwargs.pop('tags', [])
+        if 'tag' in kwargs:
+            tags += kwargs.pop('tag')
+        sprite = sprite_cls(window=self,tags=tags)
+
+        # Store references in the window
+        self.__sprites.append(sprite)        
+        for tag in sprite.get_tags():
+            if tag not in self.__tagmap:
+                self.__tagmap[tag] = []
+            self.__tagmap[tag].append(sprite)
+
+        # Call on_create and override kwargs
+        sprite.on_create()
+        for arg_name, arg_value in kwargs.items():
+            setattr(sprite, arg_name, arg_value)     
+
+        # Schedule on_update
+        pyglet_schedule_interval(sprite.on_update, 1/60)               
+
         return sprite
-
-    def create_sprite_with_tag(self, sprite_cls, tag):
-        sprite = sprite_cls(window=self, tags=[tag])
-        self.__register_sprite(sprite)
-        return sprite        
-
-    def create_sprite_with_tags(self, sprite_cls, tags):
-        sprite = sprite_cls(window=self, tags=tags)
-        self.__register_sprite(sprite)
-        return sprite    
 
     def delete_sprite(self, sprite):
         self.__deregister_sprite(sprite)
@@ -84,15 +104,6 @@ class Window():
             self.__deregister_sprite(sprite)
         # leaves tag in __tagmap 
 
-    def __register_sprite(self, sprite):
-        self.__sprites.append(sprite)
-        for tag in sprite.get_tags():
-            if tag not in self.__tagmap:
-                self.__tagmap[tag] = []
-            self.__tagmap[tag].append(sprite)
-
-        sprite.on_create()
-        pyglet_schedule_interval(sprite.on_update, 1/60)            
 
     def __deregister_sprite(self, sprite):
         pyglet_unschedule(sprite.on_update)
@@ -102,8 +113,16 @@ class Window():
             if sprite in sprites:
                 self.__tagmap[tag] = [s for s in self.__tagmap[tag] if s is not sprite]
 
+
     def get_sprites_with_tag(self, tag):
         return self.__tagmap.get(tag, [])
+
+    def get_all_sprites(self):
+        return self.__sprites
+
+
+    def dump_all_sprites(self):
+        return 'Sprites in window: \n\t'+'\n\t'.join([str(s) for s in self.__sprites])
 
 
     # Drawing
@@ -146,7 +165,7 @@ class Window():
 
     # Key input
 
-    def is_active_key(self, keycode: int) -> bool:
+    def is_key_pressed(self, keycode: int) -> bool:
         return keycode in self.__active_keys
 
     def set_on_key_press(self, key_press_function):
@@ -197,6 +216,8 @@ class Window():
     def run(self):
         app.run()
 
+    def exit(self):
+        app.exit()
     
     # Helpers
 
