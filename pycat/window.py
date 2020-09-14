@@ -1,3 +1,5 @@
+from threading import Lock
+
 from pyglet.window import Window as PygletWindow
 from pyglet import app
 
@@ -28,7 +30,16 @@ class Window():
     ):
         self.__window: PygletWindow = PygletWindow(width,height)
 
-        self.__active_keys: Set[int] = set()
+        self.__keys_lock = Lock()
+
+        self.__keys_async: Set[int] = set()
+        self.__keys_down_async: Set[int] = set()
+        self.__keys_up_async: Set[int] = set()
+
+        self.__keys: Set[int] = set()
+        self.__keys_down: Set[int] = set()
+        self.__keys_up: Set[int] = set()
+
         self.__window.on_key_press = self.__on_key_press
         self.__window.on_key_release = self.__on_key_release
         self.__user_key_press = lambda key,mod: None
@@ -46,8 +57,6 @@ class Window():
         self.__pre_draw_function = lambda: None
         self.__post_draw_function = lambda: None
 
-        # First element of __sprite_lists reserved for Sprites directly added to the window.
-        # Remainder of list contains SpriteLists that were added by user.
         self.__sprites: [Sprite] = []
         self.__tagmap = {}
 
@@ -89,9 +98,6 @@ class Window():
         sprite.on_create()
         for arg_name, arg_value in kwargs.items():
             setattr(sprite, arg_name, arg_value)     
-
-        # Schedule on_update
-        pyglet_schedule_interval(sprite.on_update, 1/60)               
 
         return sprite
 
@@ -165,8 +171,14 @@ class Window():
 
     # Key input
 
-    def is_key_pressed(self, keycode: int) -> bool:
-        return keycode in self.__active_keys
+    def get_key(self, keycode: int) -> bool:
+        return keycode in self.__keys
+
+    def get_key_down(self, keycode: int) -> bool:
+        return keycode in self.__keys_down
+
+    def get_key_up(self, keycode: int) -> bool:
+        return keycode in self.__keys_up
 
     def set_on_key_press(self, key_press_function):
         self.__user_key_press = key_press_function
@@ -176,13 +188,17 @@ class Window():
 
     def __on_key_press(self, key, mod):
         self.__user_key_press(key,mod)
-        self.__active_keys.add(key)
+        with self.__keys_lock:
+            self.__keys_down_async.add(key)
+            self.__keys_async.add(key)        
 
     def __on_key_release(self, key, mod):
         self.__user_key_release(key,mod)
-        if key in self.__active_keys:
-            self.__active_keys.remove(key)
-
+        with self.__keys_lock:
+            self.__keys_up_async.add(key)
+            if key in self.__keys_async:
+                self.__keys_async.remove(key)
+            
 
     # Mouse input
 
@@ -213,7 +229,25 @@ class Window():
 
     # Runtime
 
+    def __game_loop(self,dt):
+
+        # ensure key tests performed during on_updates this frame all see the same set of keys (and keys up/down)
+        with self.__keys_lock:
+            self.__keys = self.__keys_async.copy()
+            
+            # consume keys down
+            self.__keys_down = self.__keys_down_async.copy()
+            self.__keys_down_async.clear()
+
+            # consume keys up
+            self.__keys_up = self.__keys_up_async.copy()
+            self.__keys_up_async.clear()
+
+        for s in self.__sprites:
+            s.on_update(dt)
+
     def run(self):
+        pyglet_schedule_interval(self.__game_loop, 1/60)
         app.run()
 
     def exit(self):
