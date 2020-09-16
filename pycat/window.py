@@ -1,37 +1,37 @@
 from threading import Lock
+from typing import Callable, Dict, List, Optional, Set, Type, Union
 
-from pyglet.window import Window as PygletWindow
-from pyglet import app
-
-from pyglet.clock import schedule_interval as pyglet_schedule_interval
-from pyglet.clock import schedule_once as pyglet_schedule_once
-from pyglet.clock import unschedule as pyglet_unschedule
-
-from pyglet.window.mouse import LEFT as LEFT_MOUSE_BUTTON
-
-from pycat.geometry.point import Point
-from pycat.geometry.region import point_in_region
-from pycat.sprite import Sprite, UnmanagedSprite
+from pycat.base.event.key_event import KeyEvent
+from pycat.base.event.mouse_event import MouseButton, MouseEvent
+from pycat.base.sprite import Sprite as BaseSprite
+from pycat.base.window import Window as BaseWindow
 from pycat.label import Label
 from pycat.scheduler import Scheduler
+from pycat.sprite import Sprite
 
 
 class SpriteCreationError(Exception):
     pass
 
-class Window():
+class Window(BaseWindow):
 
     def __init__(
         self, 
         width: int = 1280, 
         height:int = 640, 
-        background_image='',
-        enforce_window_limits=True
+        background_image: str ='',
+        enforce_window_limits: bool =True,
+        title: str = ""
     ):
-        self.__window: PygletWindow = PygletWindow(width,height)
+        super().__init__(width, height, title)
 
+        self.__background_sprite: Optional[BaseSprite] = None
+        if background_image:
+            self.set_background_image(background_image)
+        
+        self.__enforce_window_limits = enforce_window_limits
+        
         self.__keys_lock = Lock()
-
         self.__keys_async: Set[int] = set()
         self.__keys_down_async: Set[int] = set()
         self.__keys_up_async: Set[int] = set()
@@ -40,46 +40,35 @@ class Window():
         self.__keys_down: Set[int] = set()
         self.__keys_up: Set[int] = set()
 
-        self.__window.on_key_press = self.__on_key_press
-        self.__window.on_key_release = self.__on_key_release
-        self.__user_key_press = lambda key,mod: None
-        self.__user_key_release = lambda key,mod: None
+        self.add_event_listeners(on_key_press=self.__on_key_press,
+                                 on_key_release=self.__on_key_release,
+                                 on_mouse_press=self.__on_mouse_press)
 
-        self.__window.on_mouse_press = self.__on_mouse_press
+        self.__sprites: List[Sprite] = []
+        self.__tagmap: Dict[str, List[Sprite]] = {}
+        self.__labels: List[Label] = []
+        self.__objects_to_draw: List[Union[Sprite, Label]] = []
         
-        self.__mouse_position = Point(0,0)
-        self.__mouse_delta = Point(0,0)
-        self.__window.on_mouse_motion = self.__on_mouse_motion
-
-        self.__window.on_draw = self.__auto_draw
+        self.__pre_draw: Optional[Callable[[None], None]] = None
+        self.on_draw(self.__auto_draw)
+        self.__post_draw: Optional[Callable[[None], None]] = None
         
-        self.__enforce_window_limits = enforce_window_limits
-        self.__pre_draw_function = lambda: None
-        self.__post_draw_function = lambda: None
-
-        self.__sprites: [Sprite] = []
-        self.__tagmap = {}
-
-        self.__labels: [Label] = []
-
-        self.__background_sprite = None
-        if background_image:
-            self.set_background_image(background_image)
-
 
     # Sprite / Label management
 
     def add_label(self, label: Label):
         self.__labels.append(label)
+        self.__update_draw_list()
 
-    def create_sprite(self, sprite_cls=Sprite, **kwargs):
+
+    def create_sprite(self, sprite_cls: Type[Sprite]=Sprite, **kwargs):
         # Sanity check kwargs
         for arg_name in kwargs:
             if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale']:
                 raise SpriteCreationError("You may not set '"+arg_name+"' when creating a sprite")
 
         if 'tag' in kwargs and 'tags' in kwargs:
-            raise SpriteCreationError("You may not specify both 'tag' and 'tags' when creating a sprite")
+            raise SpriteCreationError("You may not specify both 'tag' and 'tags'" "when creating a sprite")
 
         # Create a class
         tags = kwargs.pop('tags', [])
@@ -89,7 +78,7 @@ class Window():
 
         # Store references in the window
         self.__sprites.append(sprite)        
-        for tag in sprite.get_tags():
+        for tag in sprite.tags:
             if tag not in self.__tagmap:
                 self.__tagmap[tag] = []
             self.__tagmap[tag].append(sprite)
@@ -98,27 +87,28 @@ class Window():
         sprite.on_create()
         for arg_name, arg_value in kwargs.items():
             setattr(sprite, arg_name, arg_value)     
-
+        self.__update_draw_list()
         return sprite
 
+    # there was a bug here,
+    # we can't delete while we are iterating over the sprite list in update
     def delete_sprite(self, sprite):
-        self.__deregister_sprite(sprite)
+        # self.__deregister_sprite(sprite)
+        sprite.delete()
 
     def delete_sprites_with_tag(self, tag):
         # this could be optimized
-        for sprite in self.__tagmap.get(tag,[]):            
-            self.__deregister_sprite(sprite)
-        # leaves tag in __tagmap 
+        for sprite in self.__tagmap.get(tag,[]): 
+            sprite.delete()           
+            #self.__deregister_sprite(sprite)
+        # leaves tag in __tagmap
 
-
-    def __deregister_sprite(self, sprite):
-        pyglet_unschedule(sprite.on_update)
-        
-        self.__sprites.remove(sprite)
-        for tag,sprites in self.__tagmap.items():
-            if sprite in sprites:
-                self.__tagmap[tag] = [s for s in self.__tagmap[tag] if s is not sprite]
-
+    # def __deregister_sprite(self, sprite):        
+    #     self.__sprites.remove(sprite)
+    #     for tag, sprites in self.__tagmap.items():
+    #         if sprite in sprites:
+    #             self.__tagmap[tag] = [s for s in self.__tagmap[tag] 
+    #                                      if s is not sprite]
 
     def get_sprites_with_tag(self, tag):
         return self.__tagmap.get(tag, [])
@@ -126,47 +116,48 @@ class Window():
     def get_all_sprites(self):
         return self.__sprites
 
-
     def dump_all_sprites(self):
-        return 'Sprites in window: \n\t'+'\n\t'.join([str(s) for s in self.__sprites])
-
+        return 'Sprites in window: \n\t'+'\n\t'.join([str(s) 
+                for s in self.__sprites])
 
     # Drawing
 
-    def clear(self):
-        self.__window.clear()
+    def set_background_image(self, image: str):
+        if self.__background_sprite is not None:
+            self.__background_sprite.image = image
+        else:
+            c = self.center
+            b = BaseSprite.create_from_file(image, c.x, c.y, 0)
+            self.__background_sprite = b
+            self.__background_sprite.position = c
 
-    def set_background_image(self, image):
-        self.__background_sprite = UnmanagedSprite(self)
-        self.__background_sprite.image = image
-        self.__background_sprite.position = self.get_center()
+    def set_pre_draw(self, pre_draw_func: Callable[[None], None]):
+        self.__pre_draw = pre_draw_func
 
-    def set_pre_draw(self, pre_draw_function):
-        self.__pre_draw_function = pre_draw_function
+    def set_post_draw(self, post_draw_func: Callable[[None], None]):
+        self.__post_draw = post_draw_func
 
-    def set_post_draw(self, post_draw_function):
-        self.__post_draw_function = post_draw_function
-
+    # I think we should minimize computation in the draw function
+    # so I moved bounds checking to the update function 
+    # and only update drawable objects when we add or remove them
     def __auto_draw(self):
-
+        
         self.clear()
 
-        self.__pre_draw_function()
+        if self.__pre_draw:
+            self.__pre_draw()
 
         if self.__background_sprite:
             self.__background_sprite.draw()
 
-        if self.__enforce_window_limits:
-            for s in self.__sprites:
-                s.limit_position_to_area(0, self.width, 0, self.height)
+        # @todo: add batch rendering
+        # still need to implement layers 
+        # using pyglet.graphics.OrderedGroup
+        for o in self.__objects_to_draw:
+            o.draw()
 
-        objects_to_draw = self.__sprites + self.__labels
-        objects_to_draw.sort(key=lambda o: o.layer)
-
-        for o in objects_to_draw:
-            o.draw()       
-
-        self.__post_draw_function() 
+        if self.__post_draw:
+            self.__post_draw()
 
 
     # Key input
@@ -180,58 +171,33 @@ class Window():
     def get_key_up(self, keycode: int) -> bool:
         return keycode in self.__keys_up
 
-    def set_on_key_press(self, key_press_function):
-        self.__user_key_press = key_press_function
-
-    def set_on_key_release(self, key_release_function):
-        self.__user_key_release = key_release_function
-
-    def __on_key_press(self, key, mod):
-        self.__user_key_press(key,mod)
+    def __on_key_press(self, e: KeyEvent):
         with self.__keys_lock:
-            self.__keys_down_async.add(key)
-            self.__keys_async.add(key)        
+            self.__keys_down_async.add(e.symbol)
+            self.__keys_async.add(e.symbol)        
 
-    def __on_key_release(self, key, mod):
-        self.__user_key_release(key,mod)
+    def __on_key_release(self, e: KeyEvent):
         with self.__keys_lock:
-            self.__keys_up_async.add(key)
-            if key in self.__keys_async:
-                self.__keys_async.remove(key)
+            self.__keys_up_async.add(e.symbol)
+            if e.symbol in self.__keys_async:
+                self.__keys_async.remove(e.symbol)
             
-
     # Mouse input
 
-    def __on_mouse_motion(self, x, y, dx, dy):
-        self.__mouse_position.x = x
-        self.__mouse_position.y = y
-        self.__mouse_delta.x = dx
-        self.__mouse_delta.y = dy
-
-
-    def __on_mouse_press(self, x, y, button, modifiers):
-
+    def __on_mouse_press(self, e: MouseEvent):
+        p = e.position
         for sprite in self.__sprites:
-
-            llc = Point(sprite.position.x - sprite.width/2, sprite.position.y - sprite.height/2)
-            urc = Point(sprite.position.x + sprite.width/2, sprite.position.y + sprite.height/2)
-
-            if point_in_region(
-                lower_left_corner = llc,
-                upper_right_corner = urc,
-                x = x,
-                y = y
-            ):
-                sprite.on_click(x,y,button,modifiers)
-                if button == LEFT_MOUSE_BUTTON:
+            if sprite.contains_point(p):
+                sprite.on_click(e)
+                if e.button == MouseButton.LEFT:
                     sprite.on_left_click()
-
 
     # Runtime
 
-    def __game_loop(self,dt):
+    def __game_loop(self, dt: float):
 
-        # ensure key tests performed during on_updates this frame all see the same set of keys (and keys up/down)
+        # ensure key tests performed during on_updates this frame 
+        # all see the same set of keys (and keys up/down)
         with self.__keys_lock:
             self.__keys = self.__keys_async.copy()
             
@@ -243,43 +209,44 @@ class Window():
             self.__keys_up = self.__keys_up_async.copy()
             self.__keys_up_async.clear()
 
-        for s in self.__sprites:
-            s.on_update(dt)
 
-    def run(self):
-        pyglet_schedule_interval(self.__game_loop, 1/60)
-        app.run()
+        # There was a bug here previously,
+        # if a sprite deletes itself during its own update function 
+        # then self.__sprites will be modified while iterating
+        # so we need to update then delete
 
-    def exit(self):
-        app.exit()
-    
-    # Helpers
+        # save a little time by checking window limits outside loop
+        if self.__enforce_window_limits:
+            for s in self.__sprites:
+                s.on_update(dt)
+                s.limit_position_to_area(0, self.width, 0, self.height)
+        else:
+            for s in self.__sprites:
+                s.on_update(dt)
 
-    def get_center(self) -> Point:
-        return Point(self.width/2, self.height / 2)
+        # I changed the sprite class's delete() function to set a flag
+        # (sprite._is_deleted == True)
+        # first we update then we delete sprites
+        # --------------------------
+        # check if any sprites were deleted
+        # prevent unecessary copy and sort
+        removables = [s for s in self.__sprites if s.is_deleted]
+        if removables:
+            for s in removables:
+                for tag in s.tags:
+                    self.__tagmap[tag].remove(s)
+            self.__sprites = [s for s in self.__sprites if not s.is_deleted]
+            self.__update_draw_list()
+        # -------------------  
 
 
-    # Properties
+    def __update_draw_list(self):
+        """Call when we add objects to draw"""
+        self.__objects_to_draw = self.__sprites + self.__labels
+        self.__objects_to_draw.sort(key=lambda o: o.layer)
 
-    @property
-    def width(self) -> int:
-        size: Tuple = self.__window.get_size()
-        return size[0]
 
-    @property
-    def height(self) -> int:
-        size: Tuple = self.__window.get_size()
-        return size[1]    
-
-    @property
-    def mouse_position(self) -> Point:
-        return self.__mouse_position
-
-    @property
-    def mouse_delta(self) -> Point:
-        return self.__mouse_delta
-    
-
-    
-
+    def run(self, **kwargs):
+        Scheduler.update(self.__game_loop)
+        super().run(**kwargs)
 

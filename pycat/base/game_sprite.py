@@ -1,10 +1,16 @@
+"""forked from pycat.sprite to do some testing"""
 from typing import List
-
 from pycat.base.sprite import Sprite as BaseSprite
+from pycat.base.game_window import Window
 from pycat.collision import is_aabb_collision
-from pycat.base.event.mouse_event import MouseEvent
+from pycat.base.image import Image
 
 from random import randint
+
+# Question: Suppose a class MySprite inherits from Sprite,
+# If it is instantiated s = MySprite(window), it will not be registered
+# so it will not be drawn, updated, or receive any events
+# maybe we should register the sprite in __init__() to handle this case ?
 
 
 class Sprite(BaseSprite):
@@ -19,7 +25,7 @@ class Sprite(BaseSprite):
     """
     def __init__(
         self, 
-        window,
+        window: Window,
         tags: List[str] = []     
     ):        
         self._window = window
@@ -41,7 +47,7 @@ class Sprite(BaseSprite):
         """
         pass
 
-    def on_click(self, mouse: MouseEvent):
+    def on_click(self, x, y, button, modifiers):
         """Called when ANY mouse button is clicked while the cursor is over this sprite."""
         pass
 
@@ -56,12 +62,12 @@ class Sprite(BaseSprite):
 
 
     @property
-    def window(self):
+    def window(self) -> Window:
         return self._window 
 
     @property
-    def is_deleted(self) -> bool:
-        return self.__is_deleted
+    def _is_deleted(self) -> bool:
+        return self.__is_deleted 
 
     def delete(self):
         self.__is_deleted = True
@@ -94,5 +100,4 @@ class Sprite(BaseSprite):
         return False        
 
     def point_toward_mouse_cursor(self):
-        """Rotate to point towards mouse position."""
         self.point_toward(self._window.mouse_position)

@@ -1,48 +1,57 @@
-from pyglet.clock import schedule_interval as pyglet_schedule_interval
-from pyglet.clock import schedule_once as pyglet_schedule_once
-from pyglet.clock import unschedule as pyglet_unschedule
+from inspect import signature
 from typing import Callable
+
+from pyglet.clock import (schedule_interval, schedule_interval_soft,
+                          schedule_once, unschedule)
 
 
 class Scheduler:
-    def __init__(self):
-        self.__update_dt: float = 0
+    """Implements static methods for scheduling callback functions.
+        
+    You must pass a callback function as a parameter to these methods.
+    If the callback takes arguments, the first argument must be a float.
+    When the function is called its first argument will have the actual 
+    delay time as its value.
+    Note: The default time function used is `time.perf_counter()`
+    """
 
-    # set by user by calling wait method
-    def __user_wait_function(self):
-        pass
+    @staticmethod
+    def wait(delay: float, callback: Callable[...,None], *args, **kwargs):
+        """Wait for delay time then call a scheduled callback function.
 
-    # set by user by calling update method
-    def __user_update_function(self):
-        pass
-
-    @property
-    def dt(self) -> float:
-        """gets the change in time since the last update
-
-        Returns:
-            float: the change in time since the last update
+        If `callback` takes arguments then the first argument must be a
+        float which will get the value of the actual delay time.
         """
-        return self.__update_dt
+        if len(signature(callback).parameters):
+            schedule_once(callback, delay, *args, **kwargs)
+        else:
+            schedule_once(lambda dt : callback(), delay)
 
-    def wait(self, time_interval: float, wait_function: Callable[[], None]):
-        self.__user_wait_function = wait_function
-        pyglet_schedule_once(self.__wait_function, time_interval)
+    @staticmethod
+    def update(callback: Callable[...,None], delay: float = 1/70, *args, **kwargs):
+        """Update a scheduled callback function at regular delay time interval.
 
-    def update(
-        self,
-        update_function: Callable[[], None],
-        update_interval_time: float = 1 / 120.0,
-    ):
-        self.__user_update_function = update_function
-        pyglet_schedule_interval(self.__update_function, update_interval_time)
+        If `callable` takes arguments then the first argument must be a
+        float which will get the value of the actual delay time since the previous update.
+        """
+        if len(signature(callback).parameters):
+            schedule_interval(callback, delay, *args, **kwargs)
+        else:
+            schedule_interval(lambda dt : callback(), delay)
 
-    def cancel_update(self):
-        pyglet_unschedule(self.__update_function)
+    @staticmethod
+    def soft_update(callback: Callable[...,None], delay: float = 1/70, *args, **kwargs):
+        """Update a scheduled callback function at regular delay time interval.
 
-    def __wait_function(self, dt: float):
-        self.__user_wait_function()
+        If `callable` takes arguments then the first argument must be a
+        float which will get the value of the actual delay time since the previous update.
+        """
+        if len(signature(callback).parameters):
+            schedule_interval_soft(callback, delay, *args, **kwargs)
+        else:
+            schedule_interval_soft(lambda dt : callback(), delay)
 
-    def __update_function(self, dt: float):
-        self.__update_dt = dt
-        self.__user_update_function()
+    @staticmethod
+    def cancel_update(callback: Callable[...,None]):
+        """Cancel updates on a previously scheduled callback."""
+        unschedule(callback)
