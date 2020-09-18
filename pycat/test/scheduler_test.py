@@ -53,6 +53,7 @@ def test_wait(delay):
     print("=============================================")
     Scheduler.wait(1, test_wait_with_args, [round(delay, 3)])
 
+
 def test_wait_no_args():
     print("test_wait_no_args() called")
     print("=============================================")

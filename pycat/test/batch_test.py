@@ -1,16 +1,16 @@
 """This is a test to check batch rendering and event handling performance.
 
 The class `pycat.base.Sprite` now inherits from the `WindowEventListener`
-calss and can receive any window event by overriding a set of methods 
-and adding the sprite to a window using the 
-`window.add_window_event_listener(s: WindowEventListener)` method. 
-In order to be collected by the garbage collector, they must also 
-be removed using the 
-`window.remove_window_event_listener(s: WindowEventListener)`. Events are 
+calss and can receive any window event by overriding a set of methods
+and adding the sprite to a window using the
+`window.add_window_event_listener(s: WindowEventListener)` method.
+In order to be collected by the garbage collector, they must also
+be removed using the
+`window.remove_window_event_listener(s: WindowEventListener)`. Events are
 handled by the `WindowEventHandler` class using a publisher subscriber model.
 
-The frames per second are displayed on the window. Garbage collection is 
-tested using print statements in the custom sprites `__del__` method and 
+The frames per second are displayed on the window. Garbage collection is
+tested using print statements in the custom sprites `__del__` method and
 python's `gc` module
 
 Tests:
@@ -44,7 +44,6 @@ class Eye(Sprite):
 
     Inherits from `pycat.base.Sprite`
     """
-
     def __init__(self, look_point: Point, max_x: float, max_y: float):
         super().__init__(Image.get_image_from_file("img/eye.png"))
         self.scale = uniform(0.1, 0.3)
@@ -69,7 +68,7 @@ class Eye(Sprite):
         if self.contains_point(e.position):
             self.color = (255, 0, 0)
             self.shake = not self.shake
-    
+
     def on_mouse_press(self, e: MouseEvent):
         if self.contains_point(e.position):
             self.shake = not self.shake
@@ -128,15 +127,15 @@ def my_key_press(event: KeyEvent):
 def my_mouse_scroll(mouse: MouseEvent):
     """zoom flappy bird"""
     if mouse.delta.y < 0 and flappy_bird.scale < 3:
-        flappy_bird.scale *= 1 - mouse.delta.y/10
+        flappy_bird.scale *= 1 - mouse.delta.y / 10
     elif mouse.delta.y > 0 and flappy_bird.scale > 0.1:
-        flappy_bird.scale *= 1 - mouse.delta.y/10
+        flappy_bird.scale *= 1 - mouse.delta.y / 10
 
 
 def my_mouse_drag(mouse: MouseEvent):
     """drag flappy bird"""
     if (flappy_bird.contains_point(mouse.position)
-        or flappy_bird.contains_point(mouse.position-mouse.delta)):
+            or flappy_bird.contains_point(mouse.position - mouse.delta)):
         flappy_bird.position = mouse.position
 
 

@@ -19,6 +19,9 @@ class Point:
     def __mul__(self, scale: float) -> 'Point':
         return Point(self.x * scale, self.y * scale)
 
+    def __rmul__(self, scale: float) -> 'Point':
+        return Point(self.x * scale, self.y * scale)
+
     def __truediv__(self, denom: float) -> 'Point':
         return Point(self.x / denom, self.y / denom)
 

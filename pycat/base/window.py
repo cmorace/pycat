@@ -1,6 +1,6 @@
 """The window module implements the Window class."""
 
-from typing import Callable, Union
+from typing import Callable, List, Union
 
 from pycat.base.event.window_event_listener import WindowEventListener
 from pycat.base.event.window_event_manager import WindowEventManager
@@ -18,10 +18,10 @@ class Window():
                  height: int = 640,
                  title: str = ""):
 
-        self._window = PygletWindow(width, height, caption = title)
+        self._window = PygletWindow(width, height, caption=title)
         self._event_manager = WindowEventManager(self._window)
         # for testing convenience
-        self._fps_label = FpsLabel() # needs to be updated and drawn by user
+        self._fps_label = FpsLabel()  # needs to be updated and drawn by user
 
     @property
     def width(self) -> int:
@@ -52,7 +52,7 @@ class Window():
 
     def is_active_key(self, key: Union[int, str]) -> bool:
         """Checks if the latest pressed key is a given character or `KeyCode`.
-        
+
         If multiple keys are pressed at the same time, the active key is the
         most recent key to be pressed."""
         return key == self._event_manager.active_key
@@ -71,7 +71,6 @@ class Window():
 
     #   Drawing
     # -----------------------------------------------------------------------
-
     def clear(self):
         """Clears the window's graphics content."""
         self._window.clear()
@@ -87,33 +86,32 @@ class Window():
         """
         self._window.on_draw = draw_function
 
-
     #   Events
     # -----------------------------------------------------------------------
-    def add_window_event_listener(self, l: WindowEventListener):
+    def add_window_event_listener(self, listener: WindowEventListener):
         """Add a `WindowEventListener` to get callbacks on all window events.
 
         Remember to remove the event listener when done. References to the
-        callback functions will prevent an object from being removed from memory.
+        callback functions will prevent garbage collection.
         """
-        self._event_manager.add_window_event_listener(l)
+        self._event_manager.add_window_event_listener(listener)
 
-    def remove_window_event_listener(self, l: WindowEventListener):
+    def remove_window_event_listener(self, listener: WindowEventListener):
         """Removes a `WindowEventListener`.
-        
+
         Callbacks will stoped getting events after removal.
         """
-        self._event_manager.remove_window_event_listener(l)
+        self._event_manager.remove_window_event_listener(listener)
 
     def add_event_listeners(self, **kwargs):
         """Add multiple callback functions for window events.
-        
+
         To add callbacks use the window event name as a keyword
         followed by the callback function or list of callback functions
-        e.g. 
+        e.g.
         - `on_key_press=my_key_press`
         - `on_mouse_drag=[my_mouse_drag, my_other_mouse_drag]`
-        
+
         callback functions should take a single `KeyEvent` or `MouseEvent`
         argument.
 
@@ -133,17 +131,17 @@ class Window():
 
     def remove_event_listeners(self, **kwargs):
         """Remove multiple callback functions for window events.
-        
+
         Only callback functions that have been previously added should
         be removed. If callback functions are not removed then the
         object will not be collected by the garbage collector.
 
         To remove callbacks use the window event name as a keyword
         followed by the callback function or list of callback functions
-        e.g. 
+        e.g.
         - `on_key_press=my_key_press`
         - `on_mouse_drag=[my_mouse_drag, my_other_mouse_drag]`
-        
+
         callback functions should take a single `KeyEvent` or `MouseEvent`
         argument.
 

@@ -14,7 +14,7 @@ class Image():
     def get_solid_color_texture(width: int = 2, 
                                 height: int = 2, 
                                 rgba: Tuple[int, int, int, int] 
-                                      = (0, 0, 255, 255)) -> Texture:
+                                      = (255, 255, 255, 255)) -> Texture:
         solid_pattern = SolidColorImagePattern(rgba)
         texture = solid_pattern.create_image(width, height).get_texture()
         texture.anchor_x = texture.width / 2
