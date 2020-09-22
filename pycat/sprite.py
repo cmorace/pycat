@@ -2,8 +2,9 @@ from random import randint
 from typing import List
 
 from pycat.base.event.mouse_event import MouseEvent
-from pycat.base.sprite import Sprite as BaseSprite
-from pycat.collision import (is_buffered_rotated_box_collision,
+from pycat.base.base_sprite import BaseSprite
+from pycat.collision import (is_aabb_collision,
+                             is_buffered_rotated_box_collision,
                              is_rotated_box_collision)
 
 
@@ -72,24 +73,18 @@ class Sprite(BaseSprite):
 
     def touching_any_sprite(self):
         for s in self._window.get_all_sprites():
-            if self is not s and is_rotated_box_collision(self, s):
+            if self is not s and is_aabb_collision(self, s):
                 return True
         return False
 
-    def touching_any_sprite_with_tag(self, tag: str, buffer: float = 0):
+    def touching_any_sprite_with_tag(self, tag: str):
         """Checks if sprite is touching any other sprite with appropiate tag.
 
-        You may add a prefered buffer to fine-tune collision detection.
         Note: only sprites registered with the same Window are checked.
         """
-        if buffer:
-            for s in self._window.get_sprites_with_tag(tag):
-                if is_buffered_rotated_box_collision(self, s, buffer, buffer):
-                    return True
-        else:
-            for s in self._window.get_sprites_with_tag(tag):
-                if is_rotated_box_collision(self, s):
-                    return True
+        for s in self._window.get_sprites_with_tag(tag):
+            if is_aabb_collision(self, s):
+                return True
         return False
 
     def point_toward_mouse_cursor(self):

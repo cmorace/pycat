@@ -35,7 +35,7 @@ class MusicalSprite2(Sprite):
         self.sound_fx: Optional[Sound] = None
         self.y = .66 * window.height
 
-    def on_mouse_release(self, e: MouseEvent):
+    def on_mouse_press(self, e: MouseEvent):
         if self.sound_fx and self.contains_point(e.position):
             self.sound_fx.play()
 
@@ -43,6 +43,7 @@ class MusicalSprite2(Sprite):
 dx = window.width / (len(sound_fx) + 1)
 for i in range(len(sound_fx)):
     x = dx * (i + 1)
+
     s1 = window.create_sprite(MusicalSprite1)
     s1.x = x
     s1.sound_fx = sound_fx[i]
@@ -50,6 +51,6 @@ for i in range(len(sound_fx)):
     s2 = window.create_sprite(MusicalSprite2)
     s2.x = x
     s2.sound_fx = sound_fx[i]
-    window.add_window_event_listener(s2)
+    window.add_event_subscriber(s2)
 
 window.run()

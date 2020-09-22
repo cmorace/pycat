@@ -1,12 +1,12 @@
 """The collision module defines functions to test for Sprite collision."""
-from typing import Tuple
+from typing import List, Tuple
 
-from pycat.base.sprite import Sprite
+from pycat.base.base_sprite import BaseSprite
 from pycat.geometry.point import Point
 from pycat.math import dot, get_direction_from_degrees, project_p_onto_q
 
 
-def is_aabb_collision(a: Sprite, b: Sprite) -> bool:
+def is_aabb_collision(a: BaseSprite, b: BaseSprite) -> bool:
     """Test for collision of two axis-aligned (non-rotated) sprites."""
     aw = a.width / 2
     bw = b.width / 2
@@ -16,8 +16,8 @@ def is_aabb_collision(a: Sprite, b: Sprite) -> bool:
             and a.y - ah <= b.y + bh and a.y + ah >= b.y - bh)
 
 
-def is_buffered_aabb_collision(a: Sprite,
-                               b: Sprite,
+def is_buffered_aabb_collision(a: BaseSprite,
+                               b: BaseSprite,
                                x_buffer: float = 0,
                                y_buffer: float = 0) -> bool:
     """Add buffer to axis-aligned collision detection."""
@@ -29,20 +29,20 @@ def is_buffered_aabb_collision(a: Sprite,
             and a.y - ah <= b.y + bh and a.y + ah >= b.y - bh)
 
 
-def _get_sprite_basis_vectors(a: Sprite) -> Tuple[Point, Point]:
+def _get_sprite_basis_vectors(a: BaseSprite) -> Tuple[Point, Point]:
     u = get_direction_from_degrees(a.rotation)
     v = Point(u.y, -u.x)
     return (u, v)
 
 
-def _get_sprite_vertices(a: Sprite, basis: Tuple[Point, Point]) -> Tuple:
+def _get_sprite_vertices(a: BaseSprite, basis: Tuple[Point, Point]) -> Tuple:
     u = basis[0] * a.width / 2
     v = basis[1] * a.height / 2
     p = a.position
     return (p + u + v, p - u + v, p - u - v, p + u - v)
 
 
-def _get_projection_lengths(q, verts, origin):
+def _get_projection_lengths(q, verts, origin) -> List[float]:
     lengths = []
     for vertex in verts:
         p = vertex - origin
@@ -51,7 +51,7 @@ def _get_projection_lengths(q, verts, origin):
     return lengths
 
 
-def is_rotated_box_collision(a: Sprite, b: Sprite):
+def is_rotated_box_collision(a: BaseSprite, b: BaseSprite):
 
     a_basis = _get_sprite_basis_vectors(a)
     a_vertices = _get_sprite_vertices(a, a_basis)
@@ -73,7 +73,8 @@ def is_rotated_box_collision(a: Sprite, b: Sprite):
     return True
 
 
-def is_buffered_rotated_box_collision(a: Sprite, b: Sprite, x_buffer: float,
+def is_buffered_rotated_box_collision(a: BaseSprite, b: BaseSprite,
+                                      x_buffer: float,
                                       y_buffer: float) -> bool:
 
     a_basis = _get_sprite_basis_vectors(a)
@@ -96,5 +97,5 @@ def is_buffered_rotated_box_collision(a: Sprite, b: Sprite, x_buffer: float,
     return True
 
 
-def is_pixel_perfect_collision(a: Sprite, b: Sprite):
+def is_pixel_perfect_collision(a: BaseSprite, b: BaseSprite):
     pass

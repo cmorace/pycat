@@ -68,8 +68,6 @@ class Label:
     def delete(self):
         self._is_deleted = True
 
-
-
     def contains_point(self, p: Point) -> bool:
         """@todo"""
         return False
@@ -80,7 +78,8 @@ class Label:
     def on_left_click(self):
         pass
 
-    def limit_position_to_area(self, min_x: int, max_x: int, min_y: int, max_y: int):
+    def limit_position_to_area(self, min_x: int, max_x: int, min_y: int,
+                               max_y: int):
         pass
 
     def on_update(self, dt: float):

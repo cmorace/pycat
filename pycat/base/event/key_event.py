@@ -120,7 +120,7 @@ class KeyEvent:
         """Get the modifier value.
 
         Can be compared to `KeyCode` MOD constants.
-        Returns `None` if no modifier key is pressed/released.
+        Returns `MOD_NONE` if no modifier key is pressed/released.
         """
         return self.__modifier
 
@@ -159,7 +159,11 @@ class KeyEvent:
                 ", character: '" + self.character + "' }")
 
     def __eq__(self, key: Any) -> bool:
-        """Overload equality comparison operator."""
+        """Overload equality comparison operator for KeyEvent class.
+
+        KeyEvents can be checked against all typeable ascii characters
+        or KeyCode Constants
+        """
         if key:
             if isinstance(key, str):
                 return self.character == key

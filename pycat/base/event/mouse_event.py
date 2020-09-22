@@ -3,15 +3,16 @@ from pyglet.window import key, mouse
 from pycat.geometry.point import Point
 from pycat.base.event.key_event import KeyCode
 
+
 class MouseButton:
     NONE = 0
     LEFT = mouse.LEFT
     MIDDLE = mouse.MIDDLE
     RIGHT = mouse.RIGHT
-    
+
 
 class MouseEvent:
-    """Class for handling mouse events."""    
+    """Class for handling mouse events."""
 
     def __init__(self,
                  x: int,
@@ -78,7 +79,6 @@ class MouseEvent:
         :rtype: Optional[int]
         """
         return self.__modifier
-        
 
     @property
     def button_string(self) -> str:

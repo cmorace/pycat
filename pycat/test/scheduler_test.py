@@ -1,7 +1,7 @@
-from pycat.base.window import Window
+from pycat.base.base_window import BaseWindow
 from pycat.scheduler import Scheduler
 
-window = Window(80, 20)
+window = BaseWindow(80, 20)
 
 
 def test_soft_update(delay, times):

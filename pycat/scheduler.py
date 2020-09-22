@@ -28,7 +28,7 @@ class Scheduler:
 
     @staticmethod
     def update(callback: Callable[..., None],
-               delay: float = 1 / 70,
+               delay: float = 1/120,
                *args,
                **kwargs):
         """Update a scheduled callback function at regular delay time interval.

@@ -16,7 +16,6 @@ class Publisher(Generic[Subscriber]):
     of the Subscribers functions
     :type Generic: TypeVar('Subscriber', bound=Callable)
     """
-
     def __init__(self):
         """Instantiate a new Publisher object.
 
@@ -26,7 +25,8 @@ class Publisher(Generic[Subscriber]):
         self._current_subscribers: Set[Subscriber] = set()
         self._new_subscribers: Set[Subscriber] = set()
 
-    def add_subscriber(self, subscribers: Union[Subscriber, List[Subscriber]]):
+    def add_subscribers(self, subscribers: Union[Subscriber,
+                                                 List[Subscriber]]):
         """Add a subscriber or list of subscribers called by `dispatch()`.
 
         User's of this function are responsible for removing the
@@ -44,7 +44,8 @@ class Publisher(Generic[Subscriber]):
         else:
             self._new_subscribers.add(subscribers)
 
-    def remove_subscribers(self, subscribers: Union[Subscriber, List[Subscriber]]):
+    def remove_subscribers(self, subscribers: Union[Subscriber,
+                                                    List[Subscriber]]):
         """Remove a subscriber or list o subscribers.
 
         :param subscribers: a single subscriber or a list of subscribers
@@ -58,12 +59,11 @@ class Publisher(Generic[Subscriber]):
 
     def publish(self, *args):
         """Call all of the current subscribers.
-        
+
         Be careful not to update current subscribers during dispatch
         """
         for subscriber in self._current_subscribers:
             subscriber(*args)
-
 
     def update(self):
         """Update the current subscribers.
@@ -72,7 +72,3 @@ class Publisher(Generic[Subscriber]):
         """
         if self._current_subscribers != self._new_subscribers:
             self._current_subscribers = set(self._new_subscribers)
-
-        
-
-        

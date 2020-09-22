@@ -1,9 +1,9 @@
 """The sprite module defines the Sprite class."""
 
 from random import uniform
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
-from pycat.base.event.window_event_listener import WindowEventListener
+from pycat.base.event.window_event_subscriber import WindowEventSubscriber
 from pycat.base.image import Animation, Image, Texture
 from pycat.geometry.point import Point
 from pycat.math import (get_degrees_from_direction, get_direction_from_degrees,
@@ -11,21 +11,21 @@ from pycat.math import (get_degrees_from_direction, get_direction_from_degrees,
 from pyglet.sprite import Sprite as PygletSprite
 
 
-class Sprite(WindowEventListener):
+class BaseSprite(WindowEventSubscriber):
     """A Sprite is an image displayed on screen.
 
     It can also listen for window events by overriding the methods
     defined in `WindowEventListener` and adding it to a window via
-    a window's `add_window_event_listener()`
+    a window's `add_window_event_subscriber()`
     """
 
-    _default_image: Union[Animation, Texture] = Image.get_checker_texture(4, 4)
+    _default_image: Union[Animation, Texture] = Image.get_checker_texture(2, 2)
 
     def __init__(self,
                  image: Union[Animation, Texture] = _default_image,
                  x: float = 0,
                  y: float = 0,
-                 layer: int = 1,
+                 layer: int = 0,
                  tags: List[str] = []):
         """Instantiate a new Sprite."""
         self.layer = layer
@@ -38,7 +38,7 @@ class Sprite(WindowEventListener):
                          file: str,
                          x: float = 0,
                          y: float = 0,
-                         layer: int = 1,
+                         layer: int = 0,
                          tags: List[str] = []):
         """Class method to create a sprite from file"""
         sprite = cls(Image.get_image_from_file(file), x, y, layer, tags)
@@ -53,7 +53,7 @@ class Sprite(WindowEventListener):
                           y: float = 0,
                           width: int = 100,
                           height: int = 100,
-                          layer: int = 1,
+                          layer: int = 0,
                           tags: List[str] = []):
         return cls(Image.get_solid_color_texture(width, height, color), x, y,
                    layer, tags)
@@ -220,14 +220,15 @@ class Sprite(WindowEventListener):
         return self.__tags
 
     @property
-    def image(self) -> str:
+    def image(self) -> Optional[str]:
         """The name of the image file"""
         return self.__image_file
 
     @image.setter
-    def image(self, file: str):
-        self.__image_file = file
-        self.set_image_from_file(file)
+    def image(self, file: Optional[str]):
+        if file is not None:
+            self.__image_file = file
+            self.set_image_from_file(file)
 
     def set_image(self, image: Union[Animation, Texture]):
         """Set the Sprite's Texture or Animation"""
@@ -254,12 +255,8 @@ class Sprite(WindowEventListener):
         """Returns True if point is on the Sprite's image, otherwise False."""
         d = Point(self.width, self.height) / 2
         c = self.position
-        if self.rotation == 0:
-            return ((c.x - d.x < p.x < c.x + d.x)
-                    and (c.y - d.y < p.y < c.y + d.y))
-        else:
-            q = get_rotated_point(p - c, -self.rotation)
-            return ((-d.x < q.x < d.x) and (-d.y < q.y < d.y))
+        q = get_rotated_point(p - c, -self.rotation)
+        return ((-d.x < q.x < d.x) and (-d.y < q.y < d.y))
 
     def limit_position_to_area(self, min_x: float, max_x: float, min_y: float,
                                max_y: float):
@@ -297,7 +294,7 @@ class Sprite(WindowEventListener):
         v = get_direction_from_degrees(self.rotation)
         self.translate(v.x * step_size, v.y * step_size)
 
-    def goto(self, other_sprite: 'Sprite') -> None:
+    def goto(self, other_sprite: 'BaseSprite') -> None:
         """Go to another Sprite's position."""
         self.position = other_sprite.position
 
@@ -317,10 +314,13 @@ class Sprite(WindowEventListener):
         """Change rotation to point towards point p."""
         self.rotation = get_degrees_from_direction(p - self.position)
 
-    def point_toward_sprite(self, sprite: 'Sprite'):
+    def point_toward_sprite(self, sprite: 'BaseSprite'):
         """Change rotation to point towards another sprite."""
         self.point_toward(sprite.position)
 
     def draw(self):
         """Draws the sprite in a window's draw function"""
         self._sprite.draw()
+
+    def __lt__(self, other: 'BaseSprite') -> bool:
+        return self.layer < other.layer

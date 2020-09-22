@@ -32,14 +32,15 @@ from pycat.base.event.key_event import KeyCode, KeyEvent
 from pycat.base.event.mouse_event import MouseButton, MouseEvent
 from pycat.base.graphics_batch import GraphicsBatch
 from pycat.base.image import Image
-from pycat.base.sprite import Sprite
-from pycat.base.window import Window
+from pycat.base.base_sprite import BaseSprite
+from pycat.base.base_window import BaseWindow
 from pycat.geometry.point import Point
+from pycat.collision import is_aabb_collision, is_rotated_box_collision
 
 # gc.set_debug(gc.DEBUG_STATS)
 
 
-class Eye(Sprite):
+class Eye(BaseSprite):
     """Our test Sprite.
 
     Inherits from `pycat.base.Sprite`
@@ -53,7 +54,7 @@ class Eye(Sprite):
 
     # for testing garbage collection
     def __del__(self):
-        print("Eye garbage collected")
+        # print("Eye garbage collected")
         pass
 
     def on_key_press(self, key_event: KeyEvent):
@@ -62,12 +63,6 @@ class Eye(Sprite):
 
     def on_mouse_motion(self, e: MouseEvent):
         self.point_toward(e.position)
-
-    def on_mouse_drag(self, e: MouseEvent):
-        self.point_toward(e.position)
-        if self.contains_point(e.position):
-            self.color = (255, 0, 0)
-            self.shake = not self.shake
 
     def on_mouse_press(self, e: MouseEvent):
         if self.contains_point(e.position):
@@ -80,8 +75,8 @@ class Eye(Sprite):
             self.scale *= uniform(0.98, 1.02)
 
 
-window = Window(500, 500, "window events test")
-flappy_bird = Sprite(Image.get_image_from_file("img/bird_cropped.gif"))
+window = BaseWindow(500, 500, "window events test")
+flappy_bird = BaseSprite(Image.get_image_from_file("img/bird_cropped.gif"))
 flappy_bird.position = window.center
 flappy_bird.scale = 0.4
 sprite_list: List[Eye] = []
@@ -90,7 +85,7 @@ eye_batch = GraphicsBatch()
 
 def delete_eyes():
     for s in sprite_list:
-        window.remove_window_event_listener(s)
+        window.remove_event_subscriber(s)
     sprite_list.clear()
     eye_batch.clear()
 
@@ -103,25 +98,25 @@ def my_key_press(event: KeyEvent):
                     max_y=window.height)
             sprite_list.append(s)
             eye_batch.add_sprite(s)
-            window.add_window_event_listener(s)
+            window.add_event_subscriber(s)
         flappy_bird.set_image_from_file("img/bird_cropped.gif")
         flappy_bird.color = (255, 255, 255)
     if event.symbol == KeyCode.BACKSPACE and sprite_list:
         s = sprite_list.pop()
         eye_batch.remove_sprite(s)
-        window.remove_window_event_listener(s)
+        window.remove_event_subscriber(s)
     elif event == "0":
         flappy_bird.set_image_from_file("img/boom.png")
-        delete_eyes()
+        flappy_bird.scale = 0.5
+        flappy_bird.position = window.center
         flappy_bird.color = (255, 255, 255)
+        delete_eyes()
     elif event == "r":
         flappy_bird.color = (255, 0, 0)
     elif event == "g":
         flappy_bird.color = (0, 255, 0)
     elif event == "b":
         flappy_bird.color = (0, 0, 255)
-    elif event == "d":
-        delete_eyes()
 
 
 def my_mouse_scroll(mouse: MouseEvent):
@@ -137,16 +132,19 @@ def my_mouse_drag(mouse: MouseEvent):
     if (flappy_bird.contains_point(mouse.position)
             or flappy_bird.contains_point(mouse.position - mouse.delta)):
         flappy_bird.position = mouse.position
+        for s in sprite_list:
+            if is_aabb_collision(flappy_bird, s):
+                s.color = (255, 0, 0)
 
 
 def my_mouse_press(mouse: MouseEvent):
     if mouse.button == MouseButton.RIGHT:
-        remove_list: List[Sprite] = []
+        remove_list: List[BaseSprite] = []
         for s in sprite_list:
             if s.contains_point(mouse.position):
                 remove_list.append(s)
         for s in remove_list:
-            window.remove_window_event_listener(s)
+            window.remove_event_subscriber(s)
             sprite_list.remove(s)
             eye_batch.remove_sprite(s)
 

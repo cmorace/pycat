@@ -1,13 +1,19 @@
-"""Interface for listening for window events."""
+"""Implements the WindowEventSubscriber class.
+
+An interface for subscribing to window events.
+"""
 from pycat.base.event.key_event import KeyEvent
 from pycat.base.event.mouse_event import MouseEvent
 
 
-class WindowEventListener():
+class WindowEventSubscriber():
     """Interface for subscribing to window events.
-    
-    Override these methods in subclass if needed, then use 
-    `window.add_window_event_listener()` to get callbacks"""
+
+    Override these methods in subclass if needed.
+    Use:
+    - `window.add_window_event_subscriber()` to "subscribe" to events
+    - `window.remove_window_event_subscriber()` to "unsubscribe" to events
+    """
 
     def on_key_press(self, key_event: KeyEvent):
         pass
