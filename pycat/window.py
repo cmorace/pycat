@@ -32,11 +32,10 @@ class Window(BaseWindow):
 
         self.__enforce_window_limits = enforce_window_limits
 
-        self.__keys_lock = Lock()
+        self.__keys_lock = Lock()        
         self.__keys_async: Set[int] = set()
         self.__keys_down_async: Set[int] = set()
         self.__keys_up_async: Set[int] = set()
-
         self.__keys: Set[int] = set()
         self.__keys_down: Set[int] = set()
         self.__keys_up: Set[int] = set()
@@ -85,6 +84,8 @@ class Window(BaseWindow):
             tags += kwargs.pop('tag')
 
         sprite = sprite_cls(window=self, tags=tags)
+        # todo: move on_create call to "for sprite in self.__new_sprites:" loop in on_update
+        # would need to save kwarg overrides too
         sprite.on_create()
         self.__new_sprites.append(sprite)
 
@@ -93,9 +94,10 @@ class Window(BaseWindow):
 
         return sprite
 
-    def delete_sprites_with_tag(self, tag):
-        for sprite in self.__tagmap[tag]:
-            sprite.delete()
+    # todo: needs to be updated to use __new_sprites creation system
+    # def delete_sprites_with_tag(self, tag):
+    #     for sprite in self.__tagmap[tag]:
+    #         sprite.delete()
 
     def get_sprites_with_tag(self, tag):
         return self.__tagmap.get(tag, {})
@@ -183,8 +185,7 @@ class Window(BaseWindow):
 
     # Runtime
     def __game_loop(self, dt: float):
-        # ensure key tests performed during on_updates this frame
-        # all see the same set of keys (and keys up/down)
+        # ensure all sprites will see the same set of keys this frame
         with self.__keys_lock:
             self.__keys = self.__keys_async.copy()
 
@@ -225,6 +226,7 @@ class Window(BaseWindow):
         if self.__enforce_window_limits:
             for sprite in self.__sprites:
                 sprite.limit_position_to_area(0, self.width, 0, self.height)
+
         self._fps_label.update()
 
     def run(self, **kwargs):

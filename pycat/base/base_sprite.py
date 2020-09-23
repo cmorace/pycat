@@ -1,4 +1,4 @@
-"""The sprite module defines the Sprite class."""
+"""The base_sprite module defines the BaseSprite class."""
 
 from random import uniform
 from typing import List, Optional, Tuple, Union
@@ -57,6 +57,13 @@ class BaseSprite(WindowEventSubscriber):
                           tags: List[str] = []):
         return cls(Image.get_solid_color_texture(width, height, color), x, y,
                    layer, tags)
+
+    ##################################################################
+    # Operators
+    ##################################################################
+
+    def __lt__(self, other: 'BaseSprite') -> bool:
+        return self.layer < other.layer
 
     ##################################################################
     # Sprite Position
@@ -318,9 +325,10 @@ class BaseSprite(WindowEventSubscriber):
         """Change rotation to point towards another sprite."""
         self.point_toward(sprite.position)
 
+    ##################################################################
+    # Framework
+    ##################################################################
+
     def draw(self):
         """Draws the sprite in a window's draw function"""
         self._sprite.draw()
-
-    def __lt__(self, other: 'BaseSprite') -> bool:
-        return self.layer < other.layer

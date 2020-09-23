@@ -1,4 +1,4 @@
-"""The window module implements the Window class."""
+"""The base_window module implements the BaseWindow class."""
 
 from typing import Callable, List, Union
 

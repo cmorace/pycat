@@ -72,8 +72,10 @@ class Sprite(BaseSprite):
                 or self.y >= self._window.height)
 
     def touching_any_sprite(self):
+        if not self.is_visible:
+            return False
         for s in self._window.get_all_sprites():
-            if self is not s and is_aabb_collision(self, s):
+            if s is not self and s.is_visible and is_aabb_collision(self, s):
                 return True
         return False
 
@@ -82,8 +84,10 @@ class Sprite(BaseSprite):
 
         Note: only sprites registered with the same Window are checked.
         """
+        if not self.is_visible:
+            return False
         for s in self._window.get_sprites_with_tag(tag):
-            if is_aabb_collision(self, s):
+            if s is not self and s.is_visible and is_aabb_collision(self, s):
                 return True
         return False
 
