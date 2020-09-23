@@ -1,6 +1,6 @@
 """The base_sprite module defines the BaseSprite class."""
 
-from random import uniform
+from random import uniform, randint
 from typing import List, Optional, Tuple, Union
 
 from pycat.base.event.window_event_subscriber import WindowEventSubscriber
@@ -189,6 +189,9 @@ class BaseSprite(WindowEventSubscriber):
     @color.setter
     def color(self, color: Union[Tuple[int, int, int], List[int]]):
         self._sprite.color = color
+
+    def set_random_color(self):
+        self.color = (randint(50,255),randint(50,255),randint(50,255))
 
     @property
     def opacity(self) -> int:
