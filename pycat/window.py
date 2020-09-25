@@ -60,10 +60,16 @@ class Window(BaseWindow):
 
         self.__game_loop_running = False
 
-    # Sprite / Label management
+    ##################################################################
+    # Label management
+    ##################################################################
 
     def add_label(self, label: Label):
         self.__labels.append(label)
+
+    ##################################################################
+    # Sprite management
+    ##################################################################
 
     def add_sprite(self, sprite: Sprite):
         sprite.window = self
@@ -115,7 +121,14 @@ class Window(BaseWindow):
         print('Number of sprites in window: '+str(len(self.__sprites))+'\n\t'
             + '\n\t'.join([str(s) for s in self.__sprites]) )
 
-    # Drawing
+    ##################################################################
+    # Background sprite
+    ##################################################################
+
+    @property
+    def background_sprite(self) -> Optional[BaseSprite]:
+        return self.__background_sprite
+    
     @property
     def background_image(self) -> Optional[str]:
         return self.background_image
@@ -128,6 +141,10 @@ class Window(BaseWindow):
             else:
                 self.__background_sprite = BaseSprite.create_from_file(file)
                 self.__background_sprite.position = self.center
+
+    ##################################################################
+    # Drawing
+    ##################################################################
 
     def set_pre_draw(self, pre_draw_func: Callable[[None], None]):
         self.__pre_draw = pre_draw_func
@@ -159,7 +176,10 @@ class Window(BaseWindow):
         if self.draw_fps:
             self._fps_label.draw()
 
+    ##################################################################
     # Key input
+    ##################################################################
+
     def get_key(self, keycode: int) -> bool:
         return keycode in self.__keys
 
@@ -180,7 +200,10 @@ class Window(BaseWindow):
             if e.symbol in self.__keys_async:
                 self.__keys_async.remove(e.symbol)
 
+    ##################################################################
     # Mouse input
+    ##################################################################
+
     def __on_mouse_press(self, e: MouseEvent):
         p = e.position
         for sprite in self.__sprites:
@@ -189,7 +212,10 @@ class Window(BaseWindow):
                 if e.button == MouseButton.LEFT:
                     sprite.on_left_click()
 
+    ##################################################################
     # Runtime
+    ##################################################################
+
     def __add_new_sprites(self):
         for sprite in self.__new_sprites:
             self.__sprites.append(sprite)
