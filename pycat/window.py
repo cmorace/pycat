@@ -57,6 +57,8 @@ class Window(BaseWindow):
         self.on_draw(self.__auto_draw)
         self.__post_draw: Optional[Callable[[None], None]] = None
 
+        self.__game_loop_running = False
+
     # Sprite / Label management
 
     def add_label(self, label: Label):
@@ -69,7 +71,7 @@ class Window(BaseWindow):
     def create_sprite(self, sprite_cls: Type[Sprite] = Sprite, **kwargs):
         # Sanity check kwargs
         for arg_name in kwargs:
-            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale']:
+            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale', 'scale_x', 'scale_y']:
                 raise SpriteCreationError("You may not set '" + arg_name +
                                           "' when creating a sprite")
 
@@ -78,23 +80,26 @@ class Window(BaseWindow):
                 "You may not specify both 'tag' and 'tags'"
                 "when creating a sprite")
 
-        # Create a class
         tags = kwargs.pop('tags', [])
         if 'tag' in kwargs:
             tags += kwargs.pop('tag')
 
+        # Create a class
         sprite = sprite_cls(window=self, tags=tags)
-        # todo: move on_create call to "for sprite in self.__new_sprites:" loop in on_update
-        # would need to save kwarg overrides too
         sprite.on_create()
-        self.__new_sprites.append(sprite)
 
+        # Add to window
+        self.__new_sprites.append(sprite)
+        if not self.__game_loop_running:
+            self.__add_new_sprites()
+
+        # Override properties
         for arg_name, arg_value in kwargs.items():
             setattr(sprite, arg_name, arg_value)
 
         return sprite
 
-    # todo: needs to be updated to use __new_sprites creation system
+    # todo: needs to be updated to use new deletion system
     # def delete_sprites_with_tag(self, tag):
     #     for sprite in self.__tagmap[tag]:
     #         sprite.delete()
@@ -106,8 +111,8 @@ class Window(BaseWindow):
         return self.__sprites
 
     def dump_all_sprites(self):
-        return 'Sprites in window: \n\t' + '\n\t'.join(
-            [str(s) for s in self.__sprites])
+        print('Number of sprites in window: '+str(len(self.__sprites))+'\n\t'
+            + '\n\t'.join([str(s) for s in self.__sprites]) )
 
     # Drawing
     @property
@@ -184,6 +189,18 @@ class Window(BaseWindow):
                     sprite.on_left_click()
 
     # Runtime
+    def __add_new_sprites(self):
+        for sprite in self.__new_sprites:
+            self.__sprites.append(sprite)
+            for tag in sprite.tags:
+                if tag in self.__tagmap:
+                    self.__tagmap[tag].add(sprite)
+                else:
+                    self.__tagmap[tag] = {sprite}
+
+        self.__sprites.sort()
+        self.__new_sprites.clear()
+
     def __game_loop(self, dt: float):
         # ensure all sprites will see the same set of keys this frame
         with self.__keys_lock:
@@ -212,16 +229,7 @@ class Window(BaseWindow):
             sprite for sprite in self.__sprites if not sprite.is_deleted
         ]
 
-        for sprite in self.__new_sprites:
-            self.__sprites.append(sprite)
-            for tag in sprite.tags:
-                if tag in self.__tagmap:
-                    self.__tagmap[tag].add(sprite)
-                else:
-                    self.__tagmap[tag] = {sprite}
-
-        self.__sprites.sort()
-        self.__new_sprites.clear()
+        self.__add_new_sprites()
 
         if self.__enforce_window_limits:
             for sprite in self.__sprites:
@@ -231,4 +239,5 @@ class Window(BaseWindow):
 
     def run(self, **kwargs):
         Scheduler.update(self.__game_loop)
+        self.__game_loop_running = True
         super().run(**kwargs)

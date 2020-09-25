@@ -59,8 +59,13 @@ class BaseSprite(WindowEventSubscriber):
                    layer, tags)
 
     ##################################################################
-    # Operators
+    # Built-in
     ##################################################################
+
+    def __str__(self):
+        return ('Sprite with image '+self.image
+        +' at position ('+str(self.x)+','+str(self.y)
+        +') with tags: '+', '.join(self.tags) )
 
     def __lt__(self, other: 'BaseSprite') -> bool:
         return self.layer < other.layer
