@@ -21,11 +21,12 @@ class Window(BaseWindow):
                  height: int = 640,
                  background_image: Optional[str] = None,
                  enforce_window_limits: bool = True,
+                 draw_sprite_rects: bool = False,
                  title: str = ""):
         super().__init__(width, height, title)
 
         self.draw_fps = False
-        self.draw_sprite_rects = False
+        self.draw_sprite_rects = draw_sprite_rects
 
         self.__background_sprite: Optional[BaseSprite] = None
         self.background_image = background_image
@@ -201,6 +202,19 @@ class Window(BaseWindow):
         self.__sprites.sort()
         self.__new_sprites.clear()
 
+    def __remove_old_sprites(self):
+        for sprite in self.__sprites:
+            if sprite.is_deleted:
+                for tag in sprite.tags:
+                    self.__tagmap[tag].remove(sprite)
+
+        # priority queue won't work since we are removing arbitrary sprites
+        # if we restrict the number of layers to a constant range, e.g. 0-10
+        # then we could bin sprites to get O(1) removal amd no sort
+        self.__sprites = [
+            sprite for sprite in self.__sprites if not sprite.is_deleted
+        ]        
+
     def __game_loop(self, dt: float):
         # ensure all sprites will see the same set of keys this frame
         with self.__keys_lock:
@@ -217,17 +231,7 @@ class Window(BaseWindow):
         for sprite in self.__sprites:
             sprite.on_update(dt)
 
-        for sprite in self.__sprites:
-            if sprite.is_deleted:
-                for tag in sprite.tags:
-                    self.__tagmap[tag].remove(sprite)
-
-        # priority queue won't work since we are removing arbitrary sprites
-        # if we restrict the number of layers to a constant range, e.g. 0-10
-        # then we could bin sprites to get O(1) removal amd no sort
-        self.__sprites = [
-            sprite for sprite in self.__sprites if not sprite.is_deleted
-        ]
+        self.__remove_old_sprites()
 
         self.__add_new_sprites()
 
