@@ -17,5 +17,9 @@ def print_warning(msg: str):
     print(_DebugCode.WARNING + msg + _DebugCode.ENDC)
 
 
+def print_success(msg: str):
+    print(_DebugCode.OKGREEN + msg + _DebugCode.ENDC)
+
+
 def print_failure(msg: str):
     print(_DebugCode.FAILURE + msg + _DebugCode.ENDC)

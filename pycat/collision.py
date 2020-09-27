@@ -30,16 +30,16 @@ def is_buffered_aabb_collision(a: BaseSprite,
 
 
 def _get_sprite_basis_vectors(a: BaseSprite) -> Tuple[Point, Point]:
-    u = get_direction_from_degrees(a.rotation)
+    u = get_direction_from_degrees(a._sprite.rotation)
     v = Point(u.y, -u.x)
-    return (u, v)
+    return u, v
 
 
 def _get_sprite_vertices(a: BaseSprite, basis: Tuple[Point, Point]) -> Tuple:
     u = basis[0] * a.width / 2
     v = basis[1] * a.height / 2
     p = a.position
-    return (p + u + v, p - u + v, p - u - v, p + u - v)
+    return p + u + v, p - u + v, p - u - v, p + u - v
 
 
 def _get_projection_lengths(q, verts, origin) -> List[float]:

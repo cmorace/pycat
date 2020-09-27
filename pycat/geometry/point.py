@@ -10,6 +10,9 @@ class Point:
         self.x = x
         self.y = y
 
+    def as_tuple(self):
+        return self.x, self.y
+
     def __sub__(self, other: 'Point') -> 'Point':
         return Point(self.x - other.x, self.y - other.y)
 

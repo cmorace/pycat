@@ -1,8 +1,8 @@
 from random import randint
-from typing import List
+from typing import List, Optional
 
 from pycat.base.event.mouse_event import MouseEvent
-from pycat.base.base_sprite import BaseSprite
+from pycat.base.base_sprite import BaseSprite, RotationMode
 from pycat.collision import (is_aabb_collision,
                              is_buffered_rotated_box_collision,
                              is_rotated_box_collision)
@@ -18,7 +18,9 @@ class Sprite(BaseSprite):
     - `on_update` is scheduled to be called 60 times a second
     - `on_click` is called when the sprite is clicked!
     """
-    def __init__(self, window, tags: List[str] = []):
+
+    # changed tags default value to None, to prevent accidentally mutating it in
+    def __init__(self, window, tags: Optional[List[str]] = None):
         self._window = window
         super().__init__(tags=tags)
         self.__is_deleted = False

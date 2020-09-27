@@ -1,6 +1,6 @@
 """The base_window module implements the BaseWindow class."""
 
-from typing import Callable, List, Union
+from typing import Callable, Union
 
 from pycat.base.event.window_event_subscriber import WindowEventSubscriber
 from pycat.base.event.window_event_manager import WindowEventManager
@@ -9,9 +9,11 @@ from pycat.geometry.point import Point
 from pycat.scheduler import Scheduler
 from pyglet import app
 from pyglet.window import Window as PygletWindow
+from pyglet.gl.gl import glClearColor
+from pyglet.image import get_buffer_manager, BufferManager, ColorBufferImage
 
 
-class BaseWindow():
+class BaseWindow:
     """A window class responsible for managing window-events.
 
     Custom draw function and update functions can be set with
@@ -80,8 +82,15 @@ class BaseWindow():
         self.subscribe(**kwargs)
         app.run()
 
+    def close(self):
+        """Close the window.
+
+         Since we only support a single window, it will also exit the application.
+         """
+        self._window.close()
+
     def exit(self):
-        """Close the window and exit the application."""
+        """Exit the application."""
         app.exit()
 
     #   Drawing
@@ -90,8 +99,16 @@ class BaseWindow():
         """Clear the window's graphics content."""
         self._window.clear()
 
+    def set_clear_color(self, r: int, g: int, b: int, a: int = 255):
+        glClearColor(r / 255, g / 255, b / 255, a / 255)
+
     def on_update(self, update_function: Callable[..., None]):
-        """Schedule an update (game-loop) function."""
+        """Schedule an update (game-loop) function.
+
+        Primarily used for convenience. If you want to add a custom
+        update function you can use the decorator @window.on_update
+        instead of having to use the Scheduler class
+        """
         Scheduler.update(update_function)
 
     def on_draw(self, draw_function: Callable[..., None]):
@@ -100,6 +117,16 @@ class BaseWindow():
         Not that only one draw function can be set at a time.
         """
         self._window.on_draw = draw_function
+
+    def save_screen_shot(self, file: str):
+        """Save an image of the current window.
+
+        The saved file path is relative to the the user's python file
+        or the directory set by `set_resource_directory`.
+        """
+        buffer: BufferManager = get_buffer_manager()
+        buffer_img: ColorBufferImage = buffer.get_color_buffer()
+        buffer_img.save(file)
 
     #   Events
     # -----------------------------------------------------------------------
@@ -114,7 +141,7 @@ class BaseWindow():
     def remove_event_subscriber(self, subscriber: WindowEventSubscriber):
         """Remove a `WindowEventListener`.
 
-        Callbacks will stoped getting events after removal.
+        Callbacks will stop getting fired after removal.
         """
         self._event_manager.remove_window_event_subscriber(subscriber)
 
@@ -171,6 +198,5 @@ class BaseWindow():
         - `on_mouse_press`
         - `on_mouse_release`
         - `on_mouse_scroll`
-
         """
         self._event_manager.remove_subscribers(**kwargs)

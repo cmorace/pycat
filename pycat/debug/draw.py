@@ -1,11 +1,11 @@
-from typing import List, Tuple
+from typing import Iterable, Tuple
 from pyglet.shapes import Line
 from pyglet.graphics import Batch
 from pycat.collision import _get_sprite_basis_vectors, _get_sprite_vertices
 from pycat.base.base_sprite import BaseSprite as Sprite
 
 
-def draw_sprite_rects(sprites: List[Sprite],
+def draw_sprite_rects(sprites: Iterable[Sprite],
                       width: int = 3,
                       color: Tuple[int, int, int] = (255, 255, 255)):
     b = Batch()

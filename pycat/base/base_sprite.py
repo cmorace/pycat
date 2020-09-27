@@ -2,6 +2,7 @@
 
 from random import uniform, randint
 from typing import List, Optional, Tuple, Union
+from enum import auto, Enum
 
 from pycat.base.event.window_event_subscriber import WindowEventSubscriber
 from pycat.base.image import Animation, Image, Texture
@@ -9,6 +10,13 @@ from pycat.geometry.point import Point
 from pycat.math import (get_degrees_from_direction, get_direction_from_degrees,
                         get_rotated_point)
 from pyglet.sprite import Sprite as PygletSprite
+
+
+class RotationMode(Enum):
+    NO_ROTATION = auto()
+    RIGHT_LEFT = auto()
+    MIRROR = auto()
+    ALL_AROUND = auto()
 
 
 class BaseSprite(WindowEventSubscriber):
@@ -26,12 +34,16 @@ class BaseSprite(WindowEventSubscriber):
                  x: float = 0,
                  y: float = 0,
                  layer: int = 0,
-                 tags: List[str] = []):
+                 tags: Optional[List[str]] = None):
         """Instantiate a new Sprite."""
         self.layer = layer
         self._sprite = PygletSprite(image, x, y, subpixel=True)
-        self.__tags = tags
+        self.__tags = tags or []
         self.__image_file = ""
+
+        self.rotation_mode = RotationMode.ALL_AROUND
+        self.__rotation = 0
+        self.__is_right_facing = True
 
     @classmethod
     def create_from_file(cls,
@@ -39,7 +51,7 @@ class BaseSprite(WindowEventSubscriber):
                          x: float = 0,
                          y: float = 0,
                          layer: int = 0,
-                         tags: List[str] = []):
+                         tags: Optional[List[str]] = None):
         """Class method to create a sprite from file"""
         sprite = cls(Image.get_image_from_file(file), x, y, layer, tags)
         sprite.__image_file = file
@@ -54,7 +66,7 @@ class BaseSprite(WindowEventSubscriber):
                           width: int = 100,
                           height: int = 100,
                           layer: int = 0,
-                          tags: List[str] = []):
+                          tags: Optional[List[str]] = None):
         return cls(Image.get_solid_color_texture(width, height, color), x, y,
                    layer, tags)
 
@@ -64,8 +76,8 @@ class BaseSprite(WindowEventSubscriber):
 
     def __str__(self):
         return ('Sprite with image '+self.image
-        +' at position ('+str(self.x)+','+str(self.y)
-        +') with tags: '+', '.join(self.tags) )
+                + ' at position ('+str(self.x)+','+str(self.y)
+                + ') with tags: '+', '.join(self.tags))
 
     def __lt__(self, other: 'BaseSprite') -> bool:
         return self.layer < other.layer
@@ -111,15 +123,50 @@ class BaseSprite(WindowEventSubscriber):
         """Current orientation of the sprite in degrees.
 
         Rotation is counter-clockwise positive
+        Note that the rotation of the sprite's image may not
+        correspond to the actual rotation value if the RotationMode
+        is set to RIGHT_LEFT or NO_ROTATION
         """
-        # rotation is clock-wise positive in pyglet
-        return -self._sprite.rotation
+        return self.__rotation
 
     @rotation.setter
     def rotation(self, degrees: float):
+        self.__rotation = degrees
+        if self.rotation_mode is RotationMode.ALL_AROUND:
+            self.image_rotation = degrees
+        elif self.rotation_mode is RotationMode.RIGHT_LEFT:
+            rotation = degrees % 360
+            # sprite's with 90 or 270 degrees rotations keep previous orientation
+            if 90 < rotation < 270:
+                if self.__is_right_facing:
+                    self.scale_x *= -1
+                    self.__is_right_facing = False
+            elif rotation < 90 or rotation > 270:
+                if not self.__is_right_facing:
+                    self.scale_x *= -1
+                    self.__is_right_facing = True
+        elif self.rotation_mode is RotationMode.MIRROR:
+            print("set image rotation")
+            self.image_rotation = degrees % 360
+            # sprite's with 90 or 270 degrees rotations keep previous orientation
+            if 90 < self.image_rotation < 270:
+                if self.__is_right_facing:
+                    self.scale_y *= -1
+                    self.__is_right_facing = False
+            elif self.image_rotation < 90 or self.image_rotation > 270:
+                if not self.__is_right_facing:
+                    self.scale_y *= -1
+                    self.__is_right_facing = True
+
+    @property
+    def image_rotation(self) -> float:
+        # rotation is clock-wise positive in pyglet
+        return -self._sprite.rotation
+
+    @image_rotation.setter
+    def image_rotation(self, degrees: float):
         # rotation is clock-wise positive in pyglet
         self._sprite.rotation = -degrees
-
     ##################################################################
     # Sprite Motion
     ##################################################################
@@ -196,7 +243,7 @@ class BaseSprite(WindowEventSubscriber):
         self._sprite.color = color
 
     def set_random_color(self):
-        self.color = (randint(50,255),randint(50,255),randint(50,255))
+        self.color = (randint(50, 255), randint(50, 255), randint(50, 255))
 
     @property
     def opacity(self) -> int:
@@ -245,6 +292,17 @@ class BaseSprite(WindowEventSubscriber):
             self.__image_file = file
             self.set_image_from_file(file)
 
+    @property
+    def texture(self) -> Optional[Texture]:
+        if isinstance(self._sprite.image, Animation):
+            return None
+        else:
+            return self._sprite.image
+
+    @texture.setter
+    def texture(self, texture: Texture):
+        self._sprite.image = texture
+
     def set_image(self, image: Union[Animation, Texture]):
         """Set the Sprite's Texture or Animation"""
         self._sprite.image = image
@@ -270,8 +328,8 @@ class BaseSprite(WindowEventSubscriber):
         """Returns True if point is on the Sprite's image, otherwise False."""
         d = Point(self.width, self.height) / 2
         c = self.position
-        q = get_rotated_point(p - c, -self.rotation)
-        return ((-d.x < q.x < d.x) and (-d.y < q.y < d.y))
+        q = get_rotated_point(p - c, self._sprite.rotation)
+        return (-d.x < q.x < d.x) and (-d.y < q.y < d.y)
 
     def limit_position_to_area(self, min_x: float, max_x: float, min_y: float,
                                max_y: float):

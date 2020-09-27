@@ -14,6 +14,7 @@ setuptools.setup(
     # url="https://github.com/cmorace/peanuts_python_library",
     install_requires=[
           'pyglet',
+          'numpy',
       ],
     packages=setuptools.find_packages(),
     classifiers=[
