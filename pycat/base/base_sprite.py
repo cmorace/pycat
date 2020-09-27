@@ -146,7 +146,6 @@ class BaseSprite(WindowEventSubscriber):
                     self.scale_x *= -1
                     self.__is_right_facing = True
         elif self.rotation_mode is RotationMode.MIRROR:
-            print("set image rotation")
             self.image_rotation = degrees % 360
             # sprite's with 90 or 270 degrees rotations keep previous orientation
             if 90 < self.image_rotation < 270:

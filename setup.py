@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pycat",
-    version="0.0.5",
+    version="0.0.6",
     author="Charles Morace & David White",
     author_email="charles.c.morace@gmail.com & white.dh@gmail.com",
     description="pycat: A Python game framework simplifying game developement with pyglet.",
@@ -15,6 +15,7 @@ setuptools.setup(
     install_requires=[
           'pyglet',
           'numpy',
+          'Pillow'  # just used in tool_image_cropper project right now
       ],
     packages=setuptools.find_packages(),
     classifiers=[

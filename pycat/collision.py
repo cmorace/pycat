@@ -30,7 +30,7 @@ def is_buffered_aabb_collision(a: BaseSprite,
 
 
 def _get_sprite_basis_vectors(a: BaseSprite) -> Tuple[Point, Point]:
-    u = get_direction_from_degrees(a._sprite.rotation)
+    u = get_direction_from_degrees(a.image_rotation)
     v = Point(u.y, -u.x)
     return u, v
 
