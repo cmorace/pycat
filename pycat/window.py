@@ -104,9 +104,6 @@ class Window(BaseWindow):
 
         return sprite
 
-    #  todo: needs to be updated to use new deletion system
-    #  @dw, I uncommented this because I think it's already working with the system
-    # tested it with flappy bird and works fine. Maybe I am missing something though
     def delete_sprites_with_tag(self, tag):
         for sprite in self.__tagmap[tag]:
             sprite.delete()
