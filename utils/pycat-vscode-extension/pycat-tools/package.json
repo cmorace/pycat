@@ -1,0 +1,77 @@
+{
+	"publisher": "cmorace",
+	"name": "pycat-tools",
+	"displayName": "pycat-tools",
+	"description": "pycat preprocessing tool",
+	"version": "0.0.1",
+	"icon": "images/pycat-tools-icon256.png",
+	"engines": {
+		"vscode": "^1.49.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:pycat-tools.openEditor",
+		"onCommand:pycat-tools.autoCrop"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"configuration": {
+			"title": "pycat-tools",
+			"properties": {
+				"pycat-tools.pythonPath": {
+					"type": "string",
+					"default": "python",
+					"description": "Path to Python. Note: pycat must be installed to site-packages",
+					"scope": "resource"
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "pycat-tools.openEditor",
+				"title": "Open Image Editor"
+			},
+			{
+				"command": "pycat-tools.autoCrop",
+				"title": "Auto-Crop"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "explorerResourceIsFolder == true",
+					"command": "pycat-tools.openEditor",
+					"group": "YourGroup@1"
+				},
+				{
+					"when": "explorerResourceIsFolder == true",
+					"command": "pycat-tools.autoCrop",
+					"group": "YourGroup@1"
+			    }
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.49.0",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.0",
+		"@types/node": "^14.0.27",
+		"eslint": "^7.9.0",
+		"@typescript-eslint/eslint-plugin": "^4.1.1",
+		"@typescript-eslint/parser": "^4.1.1",
+		"glob": "^7.1.6",
+		"mocha": "^8.1.3",
+		"typescript": "^4.0.2",
+		"vscode-test": "^1.4.0"
+	}
+}
