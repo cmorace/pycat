@@ -76,7 +76,7 @@ class Window(BaseWindow):
     def create_sprite(self, sprite_cls: Type[Sprite] = Sprite, **kwargs):
         # Sanity check kwargs
         for arg_name in kwargs:
-            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale', 'scale_x', 'scale_y', 'color']:
+            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale', 'scale_x', 'scale_y', 'color', 'layer']:
                 raise SpriteCreationError("You may not set '" + arg_name +
                                           "' when creating a sprite")
 
@@ -87,7 +87,7 @@ class Window(BaseWindow):
 
         tags = kwargs.pop('tags', [])
         if 'tag' in kwargs:
-            tags += kwargs.pop('tag')
+            tags.append(kwargs.pop('tag'))
 
         # Create a class
         sprite = sprite_cls(window=self, tags=tags)
