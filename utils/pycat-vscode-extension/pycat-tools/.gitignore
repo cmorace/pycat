@@ -1,3 +1,4 @@
 node_modules/
 *.mypy_cache
 *.env/
+images/test_img

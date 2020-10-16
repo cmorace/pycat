@@ -8,8 +8,8 @@ const python = config.get<string>('pythonPath');
 // const python = '/Volumes/Transcend/Work/Peanuts/pycat-master/.env/bin/python3.8';
 const path = require('path');
 const {spawn} = require('child_process');
-const editorFile = path.join(__dirname, '/image_manipulation_tool.py');
-const autoCropFile = path.join(__dirname, '/image_auto_crop.py');
+const editorFile = path.join(__dirname, '/image_editor_extended.py');
+const autoCropFile = path.join(__dirname, '/image_auto_crop_extended.py');
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed

@@ -17,6 +17,12 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"snippets": [
+			{
+			  	"language": "python",
+			  	"path": "./snippets.json"
+			}
+		],
 		"configuration": {
 			"title": "pycat-tools",
 			"properties": {

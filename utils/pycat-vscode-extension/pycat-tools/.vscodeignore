@@ -11,3 +11,4 @@ vsc-extension-quickstart.md
 **/*.ts
 **.mypy_cache/
 *.env/
+images/test_img

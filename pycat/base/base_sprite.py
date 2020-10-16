@@ -42,7 +42,7 @@ class BaseSprite(WindowEventSubscriber):
         self.__image_file = ""
 
         self.rotation_mode = RotationMode.ALL_AROUND
-        self.__rotation = 0
+        self.__rotation = 0.0
         self.__is_right_facing = True
 
     @classmethod
@@ -63,8 +63,8 @@ class BaseSprite(WindowEventSubscriber):
                           = (255, 255, 255, 255),
                           x: float = 0,
                           y: float = 0,
-                          width: int = 100,
-                          height: int = 100,
+                          width: int = 1,
+                          height: int = 1,
                           layer: int = 0,
                           tags: Optional[List[str]] = None):
         return cls(Image.get_solid_color_texture(width, height, color), x, y,
@@ -136,7 +136,7 @@ class BaseSprite(WindowEventSubscriber):
             self.image_rotation = degrees
         elif self.rotation_mode is RotationMode.RIGHT_LEFT:
             rotation = degrees % 360
-            # sprite's with 90 or 270 degrees rotations keep previous orientation
+            # 90 or 270 degree rotations maintain previous orientation
             if 90 < rotation < 270:
                 if self.__is_right_facing:
                     self.scale_x *= -1
@@ -147,7 +147,7 @@ class BaseSprite(WindowEventSubscriber):
                     self.__is_right_facing = True
         elif self.rotation_mode is RotationMode.MIRROR:
             self.image_rotation = degrees % 360
-            # sprite's with 90 or 270 degrees rotations keep previous orientation
+            # 90 or 270 degree rotations maintain previous orientation
             if 90 < self.image_rotation < 270:
                 if self.__is_right_facing:
                     self.scale_y *= -1

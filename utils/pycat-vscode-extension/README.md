@@ -15,3 +15,23 @@ An pycat extension for VS Code
     - example
 
     ![settings](images/configuration.png)
+
+## Development
+
+### Testing
+
+To test the extension open the pycat-tools directory as a VS Code workspace and press `F5` to open a test project emulating a workspace with the extension installed.
+
+### Packaging
+
+Make sure `vsce` is installed
+
+``` bash
+npm install -g vsce
+```
+
+Then run
+``` bash
+vsce package
+```
+to generate a vsix file

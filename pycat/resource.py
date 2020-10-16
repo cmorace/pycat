@@ -1,8 +1,10 @@
 import pyglet.resource
 
 
-# if an assets directory is above the main.py file's path
-# you need to set resource directory manually
 def set_resource_directory(path: str):
+    """Set the directory to load resources from.
+
+    path is relative to script calling `window.run()`
+    """
     pyglet.resource.path = [path]
     pyglet.resource.reindex()

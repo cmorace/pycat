@@ -12,25 +12,21 @@ from pyglet.resource import image as load_image
 
 
 class ImageFormat(Enum):
+
     L = 'L'  # 1-channel Luminance texture
     LA = 'LA'  # 2-channel LuminanceAlpha texture
     RGB = 'RGB'  # 3-channel RGB texture
     RGBA = 'RGBA'  # 4-channel RGBA texture
 
+    def channels(self):
+        return len(self.value)
 
-class NumpyImage:
+
+class NumpyImage():
 
     @staticmethod
     def get_array_from_file(file: str) -> ndarray:
-        """Return a numpy array of pixel data from an image file
-
-        Args:
-            file: the image's file path
-
-        Returns:
-            a numpy array with the image's pixel data
-
-        """
+        """Return a numpy array of pixel data from an image file."""
         return NumpyImage.get_array_from_texture(load_image(file))
 
     @staticmethod
@@ -125,10 +121,17 @@ class NumpyImage:
         img_data: ImageData = texture.get_image_data()
         assert img_data.format == ImageFormat.RGBA.value
         img_array = NumpyImage.get_array_from_image_data(img_data)
-        region = argwhere(img_array[..., 3])   # get alpha-channel's non-zero indices
+        region = argwhere(img_array[..., 3])   # get alpha non-zero indices
         min_x, max_x = np_min(region[:, 1]), np_max(region[:, 1])
         min_y, max_y = np_min(region[:, 0]), np_max(region[:, 0])
-        t: Texture = texture.get_region(min_x, min_y, max_x - min_x, max_y - min_y)
+        t: Texture = texture.get_region(min_x, min_y, max_x-min_x, max_y-min_y)
         t.anchor_x = t.width/2
         t.anchor_y = t.height/2
         return t
+
+    @staticmethod
+    def crop_alpha_array(img_array: ndarray) -> ndarray:
+        region = argwhere(img_array[..., 3])   # get alpha non-zero indices
+        min_j, max_j = np_min(region[:, 1]), np_max(region[:, 1])
+        min_i, max_i = np_min(region[:, 0]), np_max(region[:, 0])
+        return img_array[min_i:max_i, min_j:max_j, ...]

@@ -1,8 +1,13 @@
 """The image module contains functions for loading or creating image data."""
-from typing import Tuple, Union
+from typing import Tuple, Union, List
 
-from pyglet.image import (Animation, CheckerImagePattern,
-                          SolidColorImagePattern, Texture)
+from pyglet.image import (
+    Animation,
+    AnimationFrame,
+    CheckerImagePattern,
+    SolidColorImagePattern,
+    Texture
+)
 from pyglet.resource import ResourceNotFoundException
 from pyglet.resource import animation as pyglet_animation
 from pyglet.resource import image as pyglet_image
@@ -74,7 +79,8 @@ class Image():
         # set origin to image center
         x: float = animation.get_max_width() / 2
         y: float = animation.get_max_height() / 2
-        for frame in animation.frames:
+        frames: List[AnimationFrame] = animation.frames
+        for frame in frames:
             frame.image.anchor_x = x
             frame.image.anchor_y = y
         return animation

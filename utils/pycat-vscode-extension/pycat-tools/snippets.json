@@ -1,0 +1,33 @@
+{
+	"pycatSprite": {
+		"scope": "python",
+		"prefix": "pycatSprite",
+		"body": [
+			"class $MyCustomSprite(Sprite):",
+			"",
+			"    def on_create(self):",
+			"        pass",
+			"",
+			"    def on_update(self, dt):",
+			"        pass",
+			"",
+			""
+		],
+		"description": "Create a Custom Sprite Class"
+	},
+
+	"pycatUpdate": {
+		"scope": "python",
+		"prefix": "pycatUpdate",
+		"body": [
+			"def $my_custom_update(dt):",
+			"    pass",
+			"",
+			"",
+			"Scheduler.update($my_custom_update, delay=$dt)",
+			"",
+			""
+		],
+		"description": "Create a Custom Update Function"
+	}
+}
