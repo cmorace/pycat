@@ -29,7 +29,7 @@
 				"pycat-tools.pythonPath": {
 					"type": "string",
 					"default": "python",
-					"description": "Path to Python. Note: pycat must be installed to site-packages",
+					"description": "Python interpreter path. Note: pycat must be installed to site-packages",
 					"scope": "resource"
 				}
 			}

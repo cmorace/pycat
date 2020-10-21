@@ -1,6 +1,6 @@
 # pycat-tools
 
-An pycat extension for VS Code
+An extension for VS Code
 
 ## Installation
 
@@ -20,7 +20,7 @@ An pycat extension for VS Code
 
 ### Testing
 
-To test the extension open the pycat-tools directory as a VS Code workspace and press `F5` to open a test project emulating a workspace with the extension installed.
+To test the extension open the pycat-tools directory as a VS Code workspace and press `F5` to open a mock project.
 
 ### Packaging
 

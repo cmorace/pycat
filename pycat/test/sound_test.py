@@ -1,56 +1,73 @@
-from typing import List, Optional
-from pycat.base.event.mouse_event import MouseEvent
-from pycat.base.sound import Sound
-from pycat.sprite import Sprite
-from pycat.window import Window
+from pycat.base.event import KeyCode, KeyEvent, MouseEvent
+from pycat.sound import AudioLoop, Player, Sound
+from pycat import Sprite, Window
 
-window = Window()
-
-sound_file = [
-    "audio/die.wav", "audio/hit.wav", "audio/point.wav", "audio/swoosh.wav",
-    "audio/wing.wav"
-]
-
-sound_fx: List[Sound] = []
-for i in range(len(sound_file)):
-    sound_fx.append(Sound(sound_file[i]))
+window = Window(title="Sound Test")
 
 
 class MusicalSprite1(Sprite):
-    def on_create(self):
+    def setup(self, x: float, sound: Sound):
+        self.position = (x, 0.33 * window.height)
+        self.sound = sound
         self.image = "img/boom.png"
         self.scale = 0.2
-        self.sound_fx: Optional[Sound] = None
-        self.y = 0.33 * window.height
 
     def on_left_click(self):
-        if self.sound_fx:
-            self.sound_fx.play()
+        self.sound.play()
 
 
 class MusicalSprite2(Sprite):
-    def on_create(self):
+    def setup(self, x: float, player: Player):
+        self.position = (x, 0.66 * window.height)
+        self.player = player
         self.image = "img/eye.png"
-        self.scale = 0.2
-        self.sound_fx: Optional[Sound] = None
-        self.y = .66 * window.height
+        self.scale = 0.5
+        window.add_event_subscriber(self)
 
     def on_mouse_press(self, e: MouseEvent):
-        if self.sound_fx and self.contains_point(e.position):
-            self.sound_fx.play()
+        if self.contains_point(e.position):
+            self.player.play()
 
 
-dx = window.width / (len(sound_fx) + 1)
-for i in range(len(sound_fx)):
+sound_file = [
+    "audio/die.wav",
+    "audio/hit.wav",
+    "audio/point.wav",
+    "audio/swoosh.wav",
+    "audio/wing.wav"
+]
+
+dx = window.width / (len(sound_file) + 1)
+for i, file in enumerate(sound_file):
     x = dx * (i + 1)
-
     s1 = window.create_sprite(MusicalSprite1)
-    s1.x = x
-    s1.sound_fx = sound_fx[i]
-
+    s1.setup(x, Sound(file))
     s2 = window.create_sprite(MusicalSprite2)
-    s2.x = x
-    s2.sound_fx = sound_fx[i]
-    window.add_event_subscriber(s2)
+    s2.setup(x, Player(file, volume=1, pitch=0.5))
 
-window.run()
+background_player = AudioLoop("audio/LoopLivi.wav")
+background_player.play()
+
+
+def on_key_press(key: KeyEvent):
+    if key == '1':
+        background_player.set_audio("audio/LoopLivi.wav", play=True)
+    elif key == '2':
+        background_player.set_audio("audio/LoopSakamoto.wav", play=True)
+    elif key == KeyCode.UP:
+        background_player.volume += .1
+    elif key == KeyCode.DOWN:
+        background_player.volume -= .1
+    elif key == KeyCode.RIGHT:
+        background_player.pitch += .01
+    elif key == KeyCode.LEFT:
+        background_player.pitch -= .01
+    elif key == KeyCode.SPACE:
+        if background_player.is_playing:
+            background_player.pause()
+        else:
+            background_player.play()
+
+
+window.set_clear_color(175, 173, 213)
+window.run(on_key_press=on_key_press)
