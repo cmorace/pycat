@@ -44,7 +44,7 @@ class Scheduler:
 
     @staticmethod
     def soft_update(callback: Callable[..., None],
-                    delay: float = 1 / 70,
+                    delay: float = 1/120,
                     *args,
                     **kwargs):
         """Update a scheduled callback function at regular delay time interval.
@@ -62,3 +62,11 @@ class Scheduler:
     def cancel_update(callback: Callable[..., None]):
         """Cancel updates on a previously scheduled callback."""
         unschedule(callback)
+
+    # possible refactor of update
+    # can call existing function with params, but no dt, e.g.
+    # Scheduler.update_test(window.create_sprite, Gem, delay=1)
+    # @staticmethod
+    # def update_test(callback: Callable[..., None], *args, delay=1/120):
+    #     print(type(args[0]))
+    #     schedule_interval(lambda dt, *args: callback(*args), delay, *args)

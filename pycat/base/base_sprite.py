@@ -107,9 +107,12 @@ class BaseSprite(WindowEventSubscriber):
         return Point(self._sprite.x, self._sprite.y)
 
     @position.setter
-    def position(self, p: Point):
-        self._sprite.x = p.x
-        self._sprite.y = p.y
+    def position(self, p: Union[Point, Tuple[float, float]]):
+        if isinstance(p, Point):
+            self._sprite.x = p.x
+            self._sprite.y = p.y
+        else:
+            self._sprite.x, self._sprite.y = p
 
     ##################################################################
     # Sprite Rotation

@@ -3,7 +3,7 @@
 		"scope": "python",
 		"prefix": "pycatSprite",
 		"body": [
-			"class $MyCustomSprite(Sprite):",
+			"class ${1:MyCustomSprite}(Sprite):",
 			"",
 			"    def on_create(self):",
 			"        pass",
@@ -20,11 +20,11 @@
 		"scope": "python",
 		"prefix": "pycatUpdate",
 		"body": [
-			"def $my_custom_update(dt):",
+			"def ${1:my_custom_update}(dt):",
 			"    pass",
 			"",
 			"",
-			"Scheduler.update($my_custom_update, delay=$dt)",
+			"Scheduler.update(${1:my_custom_update}, delay=${2:dt})",
 			"",
 			""
 		],

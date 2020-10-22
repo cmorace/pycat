@@ -5,4 +5,4 @@ env
 pycat.egg-info/
 **/__pycache__/
 .python-version
-**.mpypy_cache/
+**.mypy_cache/
