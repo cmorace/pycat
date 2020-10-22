@@ -1,7 +1,7 @@
 """The base_sprite module defines the BaseSprite class."""
 
 from random import uniform, randint
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Set
 from enum import auto, Enum
 
 from pycat.base.event.window_event_subscriber import WindowEventSubscriber
@@ -33,12 +33,11 @@ class BaseSprite(WindowEventSubscriber):
                  image: Union[Animation, Texture] = _default_image,
                  x: float = 0,
                  y: float = 0,
-                 layer: int = 0,
-                 tags: Optional[List[str]] = None):
+                 layer: int = 0):
         """Instantiate a new Sprite."""
         self.layer = layer
         self._sprite = PygletSprite(image, x, y, subpixel=True)
-        self.__tags = tags or []
+        self.__tags = set()
         self.__image_file = ""
 
         self.rotation_mode = RotationMode.ALL_AROUND
@@ -50,10 +49,9 @@ class BaseSprite(WindowEventSubscriber):
                          file: str,
                          x: float = 0,
                          y: float = 0,
-                         layer: int = 0,
-                         tags: Optional[List[str]] = None):
+                         layer: int = 0):
         """Class method to create a sprite from file"""
-        sprite = cls(Image.get_image_from_file(file), x, y, layer, tags)
+        sprite = cls(Image.get_image_from_file(file), x, y, layer)
         sprite.__image_file = file
         return sprite
 
@@ -65,10 +63,9 @@ class BaseSprite(WindowEventSubscriber):
                           y: float = 0,
                           width: int = 1,
                           height: int = 1,
-                          layer: int = 0,
-                          tags: Optional[List[str]] = None):
+                          layer: int = 0):
         return cls(Image.get_solid_color_texture(width, height, color), x, y,
-                   layer, tags)
+                   layer)
 
     ##################################################################
     # Built-in
@@ -175,6 +172,31 @@ class BaseSprite(WindowEventSubscriber):
         self._sprite.x += x
         self._sprite.y += y
 
+
+    ##################################################################
+    # Tags
+    ##################################################################
+
+    def add_tag(self, tag: str):
+        if tag in self.__tags:
+            print('Sprite tag warning: tried to add tag "'+tag+'" but it already exists')        
+        else:
+            self.__tags.add(tag)
+
+    def remove_tag(self, tag: str):
+        if tag not in self.__tags:
+            print('Sprite tag warning: tried to remove tag "'+tag+'" but it does not exist')                
+        else:
+            self.__tags.remove(tag)
+
+    def clear_tags(self):
+        self.__tags.clear()
+
+    @property
+    def tags(self) -> Set[str]:
+        """User defined tags, read-only."""
+        return self.__tags
+
     ##################################################################
     # Sprite Appearance
     ##################################################################
@@ -274,11 +296,6 @@ class BaseSprite(WindowEventSubscriber):
         `scale` is modified
         """
         return self._sprite.height
-
-    @property
-    def tags(self) -> List[str]:
-        """User defined tags, read-only."""
-        return self.__tags
 
     @property
     def image(self) -> Optional[str]:

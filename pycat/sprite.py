@@ -19,10 +19,9 @@ class Sprite(BaseSprite):
     - `on_click` is called when the sprite is clicked!
     """
 
-    # changed tags default value to None, to prevent accidentally mutating it in
-    def __init__(self, window, tags: Optional[List[str]] = None):
+    def __init__(self, window):
         self._window = window
-        super().__init__(tags=tags)
+        super().__init__()
         self.__is_deleted = False
 
     ##################################################################
@@ -79,7 +78,7 @@ class Sprite(BaseSprite):
         if not self.is_visible:
             return False
         for s in self._window.get_all_sprites():
-            if s is not self and s.is_visible and is_aabb_collision(self, s):
+            if s is not self and s.is_visible and is_rotated_box_collision(self, s):
                 return True
         return False
 
@@ -91,7 +90,7 @@ class Sprite(BaseSprite):
         if not self.is_visible:
             return False
         for s in self._window.get_sprites_with_tag(tag):
-            if s is not self and s.is_visible and is_aabb_collision(self, s):
+            if s is not self and s.is_visible and is_rotated_box_collision(self, s):
                 return True
         return False
 

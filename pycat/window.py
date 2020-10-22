@@ -48,8 +48,6 @@ class Window(BaseWindow):
         self.__sprites: List[Sprite] = list()
         self.__labels: List[Label] = list()
 
-        self.__tagmap: Dict[str, Set[Sprite]] = dict()
-
         # add new sprites to a separate list after update
         self.__new_sprites: List[Sprite] = list()
 
@@ -90,26 +88,32 @@ class Window(BaseWindow):
             tags.append(kwargs.pop('tag'))
 
         # Create a class
-        sprite = sprite_cls(window=self, tags=tags)
+        sprite = sprite_cls(window=self)
         sprite.on_create()
 
         # Add to window
         self.__new_sprites.append(sprite)
         if not self.__game_loop_running:
-            self.__add_new_sprites()
+            self.__add_new_sprites()        
 
         # Override properties
         for arg_name, arg_value in kwargs.items():
             setattr(sprite, arg_name, arg_value)
+        if tags:
+            sprite.clear_tags()
+            for tag in tags:
+                sprite.add_tag(tag)
+        
 
         return sprite
 
     def delete_sprites_with_tag(self, tag):
-        for sprite in self.__tagmap[tag]:
-            sprite.delete()
+        for sprite in self.__sprites:
+            if tag in sprite.tags:
+                sprite.delete()
 
     def get_sprites_with_tag(self, tag):
-        return self.__tagmap.get(tag, {})
+        return [s for s in self.__sprites if tag in s.tags]
 
     def get_all_sprites(self):
         return self.__sprites
@@ -216,20 +220,11 @@ class Window(BaseWindow):
     def __add_new_sprites(self):
         for sprite in self.__new_sprites:
             self.__sprites.append(sprite)
-            for tag in sprite.tags:
-                if tag in self.__tagmap:
-                    self.__tagmap[tag].add(sprite)
-                else:
-                    self.__tagmap[tag] = {sprite}
 
         self.__sprites.sort()
         self.__new_sprites.clear()
 
     def __remove_old_sprites(self):
-        for sprite in self.__sprites:
-            if sprite.is_deleted:
-                for tag in sprite.tags:
-                    self.__tagmap[tag].remove(sprite)
 
         # priority queue won't work since we are removing arbitrary sprites
         # if we restrict the number of layers to a constant range, e.g. 0-10
