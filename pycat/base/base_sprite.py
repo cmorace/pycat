@@ -114,6 +114,18 @@ class BaseSprite(WindowEventSubscriber):
         else:
             self._sprite.x, self._sprite.y = p
 
+    def limit_position_to_area(self, min_x: float, max_x: float, min_y: float,
+                               max_y: float):
+        """Restrict the sprite's position to a rectangular region."""
+        if self.x < min_x:
+            self.x = min_x
+        elif self.x > max_x:
+            self.x = max_x
+        if self.y < min_y:
+            self.y = min_y
+        elif self.y > max_y:
+            self.y = max_y
+
     ##################################################################
     # Sprite Rotation
     ##################################################################
@@ -166,14 +178,6 @@ class BaseSprite(WindowEventSubscriber):
     def image_rotation(self, degrees: float):
         # rotation is clock-wise positive in pyglet
         self._sprite.rotation = -degrees
-    ##################################################################
-    # Sprite Motion
-    ##################################################################
-
-    def translate(self, x: float, y: float):
-        """Translate the sprite by (x,y)."""
-        self._sprite.x += x
-        self._sprite.y += y
 
 
     ##################################################################
@@ -350,32 +354,9 @@ class BaseSprite(WindowEventSubscriber):
         q = get_rotated_point(p - c, self._sprite.rotation)
         return (-d.x < q.x < d.x) and (-d.y < q.y < d.y)
 
-    def limit_position_to_area(self, min_x: float, max_x: float, min_y: float,
-                               max_y: float):
-        """Restrict the sprite's position to a rectangular region."""
-        if self.x < min_x:
-            self.x = min_x
-        elif self.x > max_x:
-            self.x = max_x
-        if self.y < min_y:
-            self.y = min_y
-        elif self.y > max_y:
-            self.y = max_y
-
     ##################################################################
     # Scratch languge
     ##################################################################
-
-    def change_x(self, step_size: int):
-        """change the x-coordinate by step_size pixels"""
-        self.x += step_size
-
-    def change_y(self, step_size: int):
-        """change the y-coordinate by step_size pixels"""
-        self.y += step_size
-
-    def rotate(self, degrees: float):
-        self.rotation += degrees
 
     def move_forward(self, step_size: float):
         """Move the sprite forward by step_size pixels.

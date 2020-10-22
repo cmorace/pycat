@@ -68,9 +68,6 @@ class Window(BaseWindow):
     # Sprite management
     ##################################################################
 
-    # def add_sprite(self, sprite: Sprite):
-    #     self.__new_sprites.append(sprite)
-
     def create_sprite(self, sprite_cls: Type[Sprite] = Sprite, **kwargs):
         # Sanity check kwargs
         for arg_name in kwargs:

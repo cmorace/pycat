@@ -39,7 +39,7 @@ class Sprite(BaseSprite):
         """
         pass
 
-    def on_click(self, mouse: MouseEvent):
+    def on_click(self, mouse_event: MouseEvent):
         """Called when ANY mouse button is clicked on this sprite."""
         pass
 
@@ -84,8 +84,6 @@ class Sprite(BaseSprite):
 
     def touching_any_sprite_with_tag(self, tag: str):
         """Checks if sprite is touching any other sprite with appropiate tag.
-
-        Note: only sprites registered with the same Window are checked.
         """
         if not self.is_visible:
             return False
