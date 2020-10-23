@@ -4,6 +4,7 @@ from .label import Label
 from .scheduler import Scheduler
 from .sprite import RotationMode, Sprite
 from .window import Window
+from .sound import Sound, AudioLoop, Player
 
 __all__ = [
     'KeyCode',
@@ -12,4 +13,7 @@ __all__ = [
     'RotationMode',
     'Sprite',
     'Window',
+    'Sound',
+    'AudioLoop',
+    'Player',
 ]

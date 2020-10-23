@@ -365,17 +365,17 @@ class BaseSprite(WindowEventSubscriber):
         is rotated 90 degrees then forward is up.
         """
         v = get_direction_from_degrees(self.rotation)
-        self.translate(v.x * step_size, v.y * step_size)
+        self.position += Point(v.x * step_size, v.y * step_size)
 
     def goto(self, other_sprite: 'BaseSprite') -> None:
         """Go to another Sprite's position."""
         self.position = other_sprite.position
 
-    def goto_random_position(self,
-                             min_x: float = 0,
-                             min_y: float = 0,
-                             max_x: float = 0,
-                             max_y: float = 0):
+    def goto_random_position_in_region(self,
+                                       min_x: float = 0,
+                                       min_y: float = 0,
+                                       max_x: float = 0,
+                                       max_y: float = 0):
         """Go to a random point inside a rectangular region."""
         offset: Point = Point(self.width, self.height) / 2
         low_bound = Point(min_x, min_y) + offset
