@@ -4,7 +4,6 @@ from .base_sprite import BaseSprite, RotationMode
 from .numpy_image import NumpyImage, ImageFormat
 from .graphics_batch import GraphicsBatch
 from .image import Animation, AnimationFrame, Image, Texture
-from .sound import Sound
 
 __all__ = [
     'BaseWindow',
@@ -17,5 +16,4 @@ __all__ = [
     'AnimationFrame',
     'Image',
     'Texture',
-    'Sound',
 ]

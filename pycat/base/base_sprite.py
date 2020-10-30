@@ -7,12 +7,20 @@ from enum import auto, Enum
 from pycat.base.event.window_event_subscriber import WindowEventSubscriber
 from pycat.base.image import Animation, Image, Texture
 from pycat.geometry.point import Point
-from pycat.math import (get_degrees_from_direction, get_direction_from_degrees,
+from pycat.math import (get_degrees_from_direction, 
+                        get_direction_from_degrees,
                         get_rotated_point)
 from pyglet.sprite import Sprite as PygletSprite
 
 
 class RotationMode(Enum):
+    """Sets the behavior of a sprite's image rotation.
+
+    - NO_ROTATION: Image rotation remains fixed.
+    - RIGHT_LEFT: Image is reflected across the y-axis
+    - MIRROR: Image is reflected across the x-axis
+    - ALL_AROUND: Image rotation matches sprite rotation
+    """
     NO_ROTATION = auto()
     RIGHT_LEFT = auto()
     MIRROR = auto()
@@ -27,7 +35,7 @@ class BaseSprite(WindowEventSubscriber):
     a window's `add_window_event_subscriber()`
     """
 
-    _default_image: Union[Animation, Texture] = Image.get_checker_texture(2, 2)
+    _default_image = Image.get_solid_color_texture(1, 1)
 
     def __init__(self,
                  image: Union[Animation, Texture] = _default_image,
@@ -37,7 +45,7 @@ class BaseSprite(WindowEventSubscriber):
         """Instantiate a new Sprite."""
         self.layer = layer
         self._sprite = PygletSprite(image, x, y, subpixel=True)
-        self.__tags = set()
+        self.__tags: Set[str] = set()
         self.__image_file = ""
 
         self.rotation_mode = RotationMode.ALL_AROUND
@@ -149,25 +157,23 @@ class BaseSprite(WindowEventSubscriber):
         elif self.rotation_mode is RotationMode.RIGHT_LEFT:
             rotation = degrees % 360
             # 90 or 270 degree rotations maintain previous orientation
-            if 90 < rotation < 270:
-                if self.__is_right_facing:
-                    self.scale_x *= -1
-                    self.__is_right_facing = False
-            elif rotation < 90 or rotation > 270:
-                if not self.__is_right_facing:
-                    self.scale_x *= -1
-                    self.__is_right_facing = True
+            if (90 < rotation < 270) and self.__is_right_facing:
+                self.scale_x *= -1
+                self.__is_right_facing = False
+            elif ((rotation < 90 or rotation > 270)
+                  and not self.__is_right_facing):
+                self.scale_x *= -1
+                self.__is_right_facing = True
         elif self.rotation_mode is RotationMode.MIRROR:
             self.image_rotation = degrees % 360
             # 90 or 270 degree rotations maintain previous orientation
-            if 90 < self.image_rotation < 270:
-                if self.__is_right_facing:
-                    self.scale_y *= -1
-                    self.__is_right_facing = False
-            elif self.image_rotation < 90 or self.image_rotation > 270:
-                if not self.__is_right_facing:
-                    self.scale_y *= -1
-                    self.__is_right_facing = True
+            if (90 < self.image_rotation < 270) and self.__is_right_facing:
+                self.scale_y *= -1
+                self.__is_right_facing = False
+            elif ((self.image_rotation < 90 or self.image_rotation > 270)
+                  and not self.__is_right_facing):
+                self.scale_y *= -1
+                self.__is_right_facing = True
 
     @property
     def image_rotation(self) -> float:
@@ -179,20 +185,21 @@ class BaseSprite(WindowEventSubscriber):
         # rotation is clock-wise positive in pyglet
         self._sprite.rotation = -degrees
 
-
     ##################################################################
     # Tags
     ##################################################################
 
     def add_tag(self, tag: str):
         if tag in self.__tags:
-            print('Sprite tag warning: tried to add tag "'+tag+'" but it already exists')        
+            print('Sprite tag warning: tried to add tag "' + tag +
+                  '" but it already exists')
         else:
             self.__tags.add(tag)
 
     def remove_tag(self, tag: str):
         if tag not in self.__tags:
-            print('Sprite tag warning: tried to remove tag "'+tag+'" but it does not exist')                
+            print('Sprite tag warning: tried to remove tag "' + tag +
+                  '" but it does not exist')                
         else:
             self.__tags.remove(tag)
 

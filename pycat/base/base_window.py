@@ -85,7 +85,7 @@ class BaseWindow:
     def close(self):
         """Close the window.
 
-         Since we only support a single window, it will also exit the application.
+         It will also quit the application.
          """
         self._window.close()
 

@@ -1,5 +1,4 @@
 from pycat.window import Window
-from pycat.sprite import Sprite
 
 window = Window()
 
