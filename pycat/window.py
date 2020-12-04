@@ -71,7 +71,7 @@ class Window(BaseWindow):
     def create_sprite(self, sprite_cls: Type[Sprite] = Sprite, **kwargs):
         # Sanity check kwargs
         for arg_name in kwargs:
-            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale', 'scale_x', 'scale_y', 'color', 'layer']:
+            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale', 'scale_x', 'scale_y', 'color', 'layer', 'position', 'rotation']:
                 raise SpriteCreationError("You may not set '" + arg_name +
                                           "' when creating a sprite")
 
@@ -205,10 +205,15 @@ class Window(BaseWindow):
     def __on_mouse_press(self, e: MouseEvent):
         p = e.position
         for sprite in self.__sprites:
+
             if sprite.contains_point(p):
                 sprite.on_click(e)
                 if e.button == MouseButton.LEFT:
                     sprite.on_left_click()
+
+            sprite.on_click_anywhere(e)
+            if e.button == MouseButton.LEFT:
+                sprite.on_left_click_anywhere()
 
     ##################################################################
     # Runtime
