@@ -1,4 +1,5 @@
 from random import randint
+from typing import List
 
 from pycat.base.event.mouse_event import MouseEvent
 from pycat.base.base_sprite import BaseSprite
@@ -41,7 +42,7 @@ class Sprite(BaseSprite):
         pass
 
     def on_left_click(self):
-        """Simplified function signature for left clicks only on this sprite."""
+        """Called when left mouse button is clicked on this sprite."""
         pass
 
     def on_click_anywhere(self, mouse_event: MouseEvent):
@@ -50,7 +51,7 @@ class Sprite(BaseSprite):
 
     def on_left_click_anywhere(self):
         """Called when left mouse button is clicked anywhere in the window."""
-        pass    
+        pass
 
     ##################################################################
     # The rest
@@ -79,19 +80,18 @@ class Sprite(BaseSprite):
         return (self.x <= 0 or self.x >= self._window.width or self.y <= 0
                 or self.y >= self._window.height)
 
-    def touching_sprite(self, sprite) -> bool:
-        if not self.is_visible:
-            return False
-        for s in self._window.get_all_sprites():
-            if s == sprite and s.is_visible and is_rotated_box_collision(self, s):
-                return True
-        return False      
+    def touching_sprite(self, sprite: 'Sprite') -> bool:
+        return (self.is_visible
+                and sprite.is_visible
+                and is_rotated_box_collision(self, sprite))
 
     def touching_any_sprite(self):
         if not self.is_visible:
             return False
         for s in self._window.get_all_sprites():
-            if s is not self and s.is_visible and is_rotated_box_collision(self, s):
+            if (s is not self
+               and s.is_visible
+               and is_rotated_box_collision(self, s)):
                 return True
         return False
 
@@ -101,34 +101,36 @@ class Sprite(BaseSprite):
         if not self.is_visible:
             return False
         for s in self._window.get_sprites_with_tag(tag):
-            if s is not self and s.is_visible and is_rotated_box_collision(self, s):
+            if (s is not self
+               and s.is_visible
+               and is_rotated_box_collision(self, s)):
                 return True
         return False
 
-
-    def get_touching_sprites(self) -> list('Sprite'):
+    def get_touching_sprites(self) -> List['Sprite']:
         """Returns a list of other sprites that it is touching.
         """
         if not self.is_visible:
-            return False
-        
+            return []
+
         return [
             s for s in self._window.get_all_sprites()
-            if s is not self and s.is_visible and is_rotated_box_collision(self, s)
+            if (s is not self
+                and s.is_visible
+                and is_rotated_box_collision(self, s))
         ]
 
-
-    def get_touching_sprites_with_tag(self, tag: str) -> list('Sprite'):
-        """Returns a list of other sprites that it is touching with the specified tag.
+    def get_touching_sprites_with_tag(self, tag: str) -> List['Sprite']:
+        """Returns a list of sprites touching this sprite with specified tag.
         """
         if not self.is_visible:
-            return False
-        
+            return []
         return [
             s for s in self._window.get_sprites_with_tag(tag)
-            if s is not self and s.is_visible and is_rotated_box_collision(self, s)
+            if (s is not self
+                and s.is_visible
+                and is_rotated_box_collision(self, s))
         ]
-
 
     def point_toward_mouse_cursor(self):
         """Rotate to point towards mouse position."""

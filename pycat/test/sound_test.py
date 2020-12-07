@@ -51,12 +51,14 @@ background_player.play()
 
 def on_key_press(key: KeyEvent):
     if key == '1':
-        background_player.set_audio("audio/LoopLivi.wav", play=True)
+        file = "audio/LoopLivi.wav"
+        background_player.set_audio(file, play=True)
     elif key == '2':
-        background_player.set_audio("audio/LoopSakamoto.wav", play=True)
+        file = "audio/LoopSakamoto.wav"
+        background_player.set_audio(file, play=True)
     elif key == '3':
-        background_player.set_audio("audio/not_working_on_mac/Space Ambience.m4a",
-                                    play=True)
+        file = "audio/not_working_on_mac/Space Ambience.m4a"
+        background_player.set_audio(file, play=True)
     elif key == KeyCode.UP:
         background_player.volume += .1
     elif key == KeyCode.DOWN:

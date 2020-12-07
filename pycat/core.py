@@ -13,7 +13,6 @@ __all__ = [
     'RotationMode',
     'Sprite',
     'Window',
-    'Sound',
     'AudioLoop',
     'Player',
 ]
