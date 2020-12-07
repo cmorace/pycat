@@ -11,21 +11,6 @@ from pyglet.media import Source, SourceGroup
 driver_options['audio'] = ('openal', 'pulse', 'directsound', 'silent')
 
 
-class Sound:
-    """The sound class provides a simple way to load and play sound effects.
-
-    Sounds can be played at anytime by calling the play method but users
-    have no control over properties like pitch and volume.
-    If more control of how sounds are played is needed, see the Player class.
-    """
-    def __init__(self, file: str):
-        """Only supports .wav fileformats unless ffmpeg lib is installed"""
-        self._sound: Source = media(file, streaming=False)  # type: ignore
-
-    def play(self):
-        self._sound.play()
-
-
 class Player:
     def __init__(self, file: str, volume: float = 0.5, pitch: float = 1):
         self._sound: Source = media(file, streaming=False)  # type: ignore

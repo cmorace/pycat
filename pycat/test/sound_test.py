@@ -1,12 +1,12 @@
 from pycat.base.event import KeyCode, KeyEvent, MouseEvent
-from pycat.sound import AudioLoop, Player, Sound
+from pycat.sound import AudioLoop, Player
 from pycat.core import Sprite, Window
 
 window = Window(title="Sound Test")
 
 
 class MusicalSprite1(Sprite):
-    def setup(self, x: float, sound: Sound):
+    def setup(self, x: float, sound: Player):
         self.position = (x, 0.33 * window.height)
         self.sound = sound
         self.image = "img/boom.png"
@@ -30,7 +30,7 @@ class MusicalSprite2(Sprite):
 
 
 sound_file = [
-    "audio/not_working/bonk.m4a",
+    "audio/not_working_on_mac/bonk.m4a",
     "audio/hit.wav",
     "audio/point.wav",
     "audio/swoosh.wav",
@@ -40,8 +40,8 @@ sound_file = [
 dx = window.width / (len(sound_file) + 1)
 for i, file in enumerate(sound_file):
     x = dx * (i + 1)
-    s1 = window.create_sprite(MusicalSprite1)
-    s1.setup(x, Sound(file))
+    s1: MusicalSprite1 = window.create_sprite(MusicalSprite1)
+    s1.setup(x, Player(file))
     s2 = window.create_sprite(MusicalSprite2)
     s2.setup(x, Player(file, volume=1, pitch=0.5))
 
@@ -55,7 +55,7 @@ def on_key_press(key: KeyEvent):
     elif key == '2':
         background_player.set_audio("audio/LoopSakamoto.wav", play=True)
     elif key == '3':
-        background_player.set_audio("audio/not_working/Space Ambience.m4a",
+        background_player.set_audio("audio/not_working_on_mac/Space Ambience.m4a",
                                     play=True)
     elif key == KeyCode.UP:
         background_player.volume += .1
