@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import Callable, Dict, List, Optional, Set, Type
+from typing import Callable, List, Optional, Set, Type
 
 from pycat.base.base_sprite import BaseSprite
 from pycat.base.base_window import BaseWindow
@@ -33,7 +33,7 @@ class Window(BaseWindow):
 
         self.__enforce_window_limits = enforce_window_limits
 
-        self.__keys_lock = Lock()        
+        self.__keys_lock = Lock()
         self.__keys_async: Set[int] = set()
         self.__keys_down_async: Set[int] = set()
         self.__keys_up_async: Set[int] = set()
@@ -71,7 +71,8 @@ class Window(BaseWindow):
     def create_sprite(self, sprite_cls: Type[Sprite] = Sprite, **kwargs):
         # Sanity check kwargs
         for arg_name in kwargs:
-            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale', 'scale_x', 'scale_y', 'color', 'layer', 'position', 'rotation']:
+            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale', 'scale_x', 
+                                'scale_y', 'color', 'layer', 'position', 'rotation']:
                 raise SpriteCreationError("You may not set '" + arg_name +
                                           "' when creating a sprite")
 
@@ -91,7 +92,7 @@ class Window(BaseWindow):
         # Add to window
         self.__new_sprites.append(sprite)
         if not self.__game_loop_running:
-            self.__add_new_sprites()        
+            self.__add_new_sprites()
 
         # Override properties
         for arg_name, arg_value in kwargs.items():
@@ -125,10 +126,12 @@ class Window(BaseWindow):
     @property
     def background_sprite(self) -> Optional[BaseSprite]:
         return self.__background_sprite
-    
+
     @property
     def background_image(self) -> Optional[str]:
-        return self.background_image
+        if self.__background_sprite:
+            return self.__background_sprite.image
+        return None
 
     @background_image.setter
     def background_image(self, file: Optional[str]):
@@ -232,7 +235,7 @@ class Window(BaseWindow):
         # then we could bin sprites to get O(1) removal amd no sort
         self.__sprites = [
             sprite for sprite in self.__sprites if not sprite.is_deleted
-        ]        
+        ]
 
     def __game_loop(self, dt: float):
         # ensure all sprites will see the same set of keys this frame

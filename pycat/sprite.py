@@ -1,11 +1,8 @@
 from random import randint
-from typing import List, Optional
 
 from pycat.base.event.mouse_event import MouseEvent
-from pycat.base.base_sprite import BaseSprite, RotationMode
-from pycat.collision import (is_aabb_collision,
-                             is_buffered_rotated_box_collision,
-                             is_rotated_box_collision)
+from pycat.base.base_sprite import BaseSprite
+from pycat.collision import is_rotated_box_collision
 
 
 class Sprite(BaseSprite):
