@@ -108,8 +108,21 @@ class Sprite(BaseSprite):
                 return True
         return False
 
+
+    def get_touching_sprites(self) -> list('Sprite'):
+        """Returns a list of other sprites that it is touching.
+        """
+        if not self.is_visible:
+            return False
+        
+        return [
+            s for s in self._window.get_all_sprites()
+            if s is not self and s.is_visible and is_rotated_box_collision(self, s)
+        ]
+
+
     def get_touching_sprites_with_tag(self, tag: str) -> list('Sprite'):
-        """Checks if sprite is touching any other sprite with appropiate tag.
+        """Returns a list of other sprites that it is touching with the specified tag.
         """
         if not self.is_visible:
             return False

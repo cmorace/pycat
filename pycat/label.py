@@ -6,7 +6,7 @@ from pycat.base.event.mouse_event import MouseEvent
 
 class Label:
     def __init__(self,
-                 text: str,
+                 text: str = '',
                  x: float = 0,
                  y: float = 0,
                  layer: int = 0,
