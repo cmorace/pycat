@@ -1,13 +1,14 @@
 """The base_sprite module defines the BaseSprite class."""
 
-from random import uniform, randint
+from random import uniform
 from typing import List, Optional, Tuple, Union, Set
 from enum import auto, Enum
 
+from pycat.base.color import Color
 from pycat.base.event.window_event_subscriber import WindowEventSubscriber
 from pycat.base.image import Animation, Image, Texture
 from pycat.geometry.point import Point
-from pycat.math import (get_degrees_from_direction, 
+from pycat.math import (get_degrees_from_direction,
                         get_direction_from_degrees,
                         get_rotated_point)
 from pyglet.sprite import Sprite as PygletSprite
@@ -199,7 +200,7 @@ class BaseSprite(WindowEventSubscriber):
     def remove_tag(self, tag: str):
         if tag not in self.__tags:
             print('Sprite tag warning: tried to remove tag "' + tag +
-                  '" but it does not exist')                
+                  '" but it does not exist')
         else:
             self.__tags.remove(tag)
 
@@ -266,19 +267,19 @@ class BaseSprite(WindowEventSubscriber):
         self._sprite.visible = is_visible
 
     @property
-    def color(self) -> Union[Tuple[int, int, int], List[int]]:
+    def color(self) -> Color.RGB:
         """The sprite's (Red, Green, Blue) values.
 
         Changes the tint of the sprite image. RGB values in [0,255] range
         """
-        return self._sprite.color
+        return Color.RGB(*self._sprite.color)
 
     @color.setter
-    def color(self, color: Union[Tuple[int, int, int], List[int]]):
+    def color(self, color: Color.RGB):
         self._sprite.color = color
 
     def set_random_color(self):
-        self.color = (randint(50, 255), randint(50, 255), randint(50, 255))
+        self.color = Color.random_rgb()
 
     @property
     def opacity(self) -> int:

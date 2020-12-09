@@ -28,6 +28,7 @@ import gc
 from random import uniform
 from typing import List
 
+from pycat.base.color import Color
 from pycat.base.event.key_event import KeyCode, KeyEvent
 from pycat.base.event.mouse_event import MouseButton, MouseEvent
 from pycat.base.graphics_batch import GraphicsBatch
@@ -35,7 +36,8 @@ from pycat.base.image import Image
 from pycat.base.base_sprite import BaseSprite
 from pycat.base.base_window import BaseWindow
 from pycat.geometry.point import Point
-from pycat.collision import is_aabb_collision, is_rotated_box_collision
+from pycat.collision import is_aabb_collision
+
 
 # gc.set_debug(gc.DEBUG_STATS)
 
@@ -48,7 +50,7 @@ class Eye(BaseSprite):
     def __init__(self, look_point: Point, max_x: float, max_y: float):
         super().__init__(Image.get_image_from_file("img/eye.png"))
         self.scale = uniform(0.1, 0.3)
-        self.goto_random_position(max_x=max_x, max_y=max_y)
+        self.position = (uniform(0, max_x), uniform(0, max_y))
         self.point_toward(look_point)
         self.shake = False
 
@@ -100,7 +102,7 @@ def my_key_press(event: KeyEvent):
             eye_batch.add_sprite(s)
             window.add_event_subscriber(s)
         flappy_bird.set_image_from_file("img/bird_cropped.gif")
-        flappy_bird.color = (255, 255, 255)
+        flappy_bird.color = Color.WHITE
     if event.symbol == KeyCode.BACKSPACE and sprite_list:
         s = sprite_list.pop()
         eye_batch.remove_sprite(s)
@@ -109,14 +111,14 @@ def my_key_press(event: KeyEvent):
         flappy_bird.set_image_from_file("img/boom.png")
         flappy_bird.scale = 0.5
         flappy_bird.position = window.center
-        flappy_bird.color = (255, 255, 255)
+        flappy_bird.color = Color.WHITE
         delete_eyes()
     elif event == "r":
-        flappy_bird.color = (255, 0, 0)
+        flappy_bird.color = Color.RED
     elif event == "g":
-        flappy_bird.color = (0, 255, 0)
+        flappy_bird.color = Color.BLUE
     elif event == "b":
-        flappy_bird.color = (0, 0, 255)
+        flappy_bird.color = Color.GREEN
 
 
 def my_mouse_scroll(mouse: MouseEvent):
