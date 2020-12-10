@@ -1,29 +1,43 @@
 from random import randint
 
 
-class Color:
-
+class Color(tuple):
+    """A tuple of 3 color properties, `red`, `blue`, and `green`.
+    Constructor has the form `color = Color(red, green, blue)`
+    The `red`, `green` and 'blue` properties should be in the range [0,255].
+    This class is an immutable type, properties are read-only.
+    """
     class RGB(tuple):
-        """A tuple of 3 color properties, `red`, `blue`, and `green`.
-
-        The `red`, `blue`, and `green` properties are in the range [0,255]
-        This class is an immutable type, properties are read-only.
-        """
-
         def __new__(cls, red: int, green: int, blue: int):
             return tuple.__new__(cls, (red, green, blue))
 
         @property
-        def red(self):
+        def red(self) -> int:
             return self[0]
 
         @property
-        def green(self):
+        def green(self) -> int:
             return self[1]
 
         @property
-        def blue(self):
+        def blue(self) -> int:
             return self[2]
+
+    def __new__(cls, red: int, green: int, blue: int):
+        """Constructor."""
+        return Color.RGB(red, green, blue)
+
+    @property
+    def red(self) -> int:
+        return self[0]
+
+    @property
+    def green(self) -> int:
+        return self[1]
+
+    @property
+    def blue(self) -> int:
+        return self[2]
 
     WHITE = RGB(255, 255, 255)
     BLACK = RGB(0, 0, 0)

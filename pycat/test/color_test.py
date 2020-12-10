@@ -34,8 +34,9 @@ for i in range(len(named_colors)):
 class ColorSprite(Sprite):
 
     def on_create(self):
-        self.goto_random_position_in_region(max_x=200, max_y=window.height)
-        self.set_random_color()
+        self.goto_random_position()
+        self.color = Color(0, 255, 100)
+        self.opacity = randint(50, 150)
         self.scale_x = randint(50, 200)
         self.scale_y = randint(50, 200)
 

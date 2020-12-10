@@ -267,15 +267,15 @@ class BaseSprite(WindowEventSubscriber):
         self._sprite.visible = is_visible
 
     @property
-    def color(self) -> Color.RGB:
+    def color(self) -> Color:
         """The sprite's (Red, Green, Blue) values.
 
         Changes the tint of the sprite image. RGB values in [0,255] range
         """
-        return Color.RGB(*self._sprite.color)
+        return Color(*self._sprite.color)
 
     @color.setter
-    def color(self, color: Color.RGB):
+    def color(self, color: Color):
         self._sprite.color = color
 
     def set_random_color(self):
