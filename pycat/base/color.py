@@ -6,8 +6,8 @@ class Color:
     class RGB(tuple):
         """A tuple of 3 color properties, `red`, `blue`, and `green`.
 
-        This class is an immutable type.
-        The red, blue, and green properties are read-only.
+        The `red`, `blue`, and `green` properties are in the range [0,255]
+        This class is an immutable type, properties are read-only.
         """
 
         def __new__(cls, red: int, green: int, blue: int):
