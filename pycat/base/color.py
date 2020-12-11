@@ -9,7 +9,7 @@ class Color(tuple):
     """
     class RGB(tuple):
         def __new__(cls, red: int, green: int, blue: int):
-            return tuple.__new__(cls, (red, green, blue))
+            return (red, green, blue)
 
         @property
         def red(self) -> int:
@@ -23,7 +23,7 @@ class Color(tuple):
         def blue(self) -> int:
             return self[2]
 
-    def __new__(cls, red: int, green: int, blue: int):
+    def __new__(cls, red: int, green: int, blue: int) -> RGB:
         """Constructor."""
         return Color.RGB(red, green, blue)
 

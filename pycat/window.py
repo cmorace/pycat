@@ -101,7 +101,7 @@ class Window(BaseWindow):
             sprite.clear_tags()
             for tag in tags:
                 sprite.add_tag(tag)
-        
+
         return sprite
 
     def delete_sprites_with_tag(self, tag):

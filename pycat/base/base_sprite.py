@@ -10,7 +10,8 @@ from pycat.base.image import Animation, Image, Texture
 from pycat.geometry.point import Point
 from pycat.math import (get_degrees_from_direction,
                         get_direction_from_degrees,
-                        get_rotated_point)
+                        get_rotated_point,
+                        get_distance)
 from pyglet.sprite import Sprite as PygletSprite
 
 
@@ -229,6 +230,12 @@ class BaseSprite(WindowEventSubscriber):
     def scale(self, scale: float):
         self._sprite.scale = scale
 
+    def scale_to_width(self, new_width: float):
+        self.scale = new_width/self.width
+
+    def scale_to_height(self, new_height: float):
+        self.scale = new_height/self.height
+
     @property
     def scale_x(self) -> float:
         """The sprite's scale in its local x-direction.
@@ -267,15 +274,15 @@ class BaseSprite(WindowEventSubscriber):
         self._sprite.visible = is_visible
 
     @property
-    def color(self) -> Color:
+    def color(self) -> Color.RGB:
         """The sprite's (Red, Green, Blue) values.
 
         Changes the tint of the sprite image. RGB values in [0,255] range
         """
-        return Color(*self._sprite.color)
+        return Color.RGB(*self._sprite.color)
 
     @color.setter
-    def color(self, color: Color):
+    def color(self, color: Color.RGB):
         self._sprite.color = color
 
     def set_random_color(self):
@@ -303,6 +310,10 @@ class BaseSprite(WindowEventSubscriber):
         """
         return self._sprite.width
 
+    @width.setter
+    def width(self, new_width: float):
+        self.scale_x *= new_width/self.width
+
     @property
     def height(self) -> float:
         """The height of the displayed sprite image.
@@ -311,6 +322,10 @@ class BaseSprite(WindowEventSubscriber):
         `scale` is modified
         """
         return self._sprite.height
+
+    @height.setter
+    def height(self, new_height: float):
+        self.scale_y *= new_height/self.height
 
     @property
     def image(self) -> Optional[str]:
@@ -398,6 +413,9 @@ class BaseSprite(WindowEventSubscriber):
     def point_toward_sprite(self, sprite: 'BaseSprite'):
         """Change rotation to point towards another sprite."""
         self.point_toward(sprite.position)
+
+    def distance_to(self, point: Point) -> float:
+        return get_distance(self.position, point)
 
     ##################################################################
     # Framework

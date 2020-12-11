@@ -24,17 +24,12 @@ Tests:
 - Mouse drag will change the color of sprites under the mouse cursor
  """
 
-import gc
+# import gc
 from random import uniform
 from typing import List
 
-from pycat.base.color import Color
-from pycat.base.event.key_event import KeyCode, KeyEvent
-from pycat.base.event.mouse_event import MouseButton, MouseEvent
-from pycat.base.graphics_batch import GraphicsBatch
-from pycat.base.image import Image
-from pycat.base.base_sprite import BaseSprite
-from pycat.base.base_window import BaseWindow
+from pycat.base import BaseSprite, BaseWindow, Color, GraphicsBatch, Image
+from pycat.base.event import KeyCode, KeyEvent, MouseButton, MouseEvent
 from pycat.geometry.point import Point
 from pycat.collision import is_aabb_collision
 
@@ -43,10 +38,7 @@ from pycat.collision import is_aabb_collision
 
 
 class Eye(BaseSprite):
-    """Our test Sprite.
 
-    Inherits from `pycat.base.Sprite`
-    """
     def __init__(self, look_point: Point, max_x: float, max_y: float):
         super().__init__(Image.get_image_from_file("img/eye.png"))
         self.scale = uniform(0.1, 0.3)
@@ -55,9 +47,9 @@ class Eye(BaseSprite):
         self.shake = False
 
     # for testing garbage collection
-    def __del__(self):
-        # print("Eye garbage collected")
-        pass
+    # def __del__(self):
+    #     print("Eye garbage collected")
+    #     pass
 
     def on_key_press(self, key_event: KeyEvent):
         if key_event.character.isnumeric():
