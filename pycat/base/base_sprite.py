@@ -12,6 +12,7 @@ from pycat.math import (get_degrees_from_direction,
                         get_direction_from_degrees,
                         get_rotated_point,
                         get_distance)
+
 from pyglet.sprite import Sprite as PygletSprite
 
 
@@ -46,11 +47,10 @@ class BaseSprite(WindowEventSubscriber):
                  layer: int = 0):
         """Instantiate a new Sprite."""
         self.layer = layer
+        self.rotation_mode = RotationMode.ALL_AROUND
         self._sprite = PygletSprite(image, x, y, subpixel=True)
         self.__tags: Set[str] = set()
         self.__image_file = ""
-
-        self.rotation_mode = RotationMode.ALL_AROUND
         self.__rotation = 0.0
         self.__is_right_facing = True
 
