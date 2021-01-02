@@ -21,6 +21,7 @@ class Label:
         # width must be set to support multiline
         self.__label.width = 10000
         self.__label.multiline = True
+        self.is_visible = True
 
     @property
     def x(self) -> float:
@@ -71,6 +72,14 @@ class Label:
         self.__label.color = (*color, self.__label.color[3])
 
     @property
+    def opacity(self) -> int:
+        return self.__label.color[3]
+
+    @opacity.setter
+    def opacity(self, value: int):
+        self.__label.color = (*self.__label.color[:3], value)
+
+    @property
     def content_width(self):
         return self.__label.content_width
 
@@ -118,4 +127,5 @@ class Label:
         pass
 
     def draw(self):
-        self.__label.draw()
+        if self.is_visible:
+            self.__label.draw()

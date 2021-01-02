@@ -31,6 +31,11 @@ class CustomLabel(Label):
                 self.y_speed *= -0.7
             else:
                 self.y_speed = 0
+                if self.opacity > 0:
+                    self.opacity -= 2
+                    self.background.opacity -= 2
+                else:
+                    window.close()
 
 
 window.create_label(CustomLabel)

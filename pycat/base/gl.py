@@ -6,6 +6,7 @@ from pyglet.gl.gl import (
     GL_LINEAR,
     GL_NEAREST)
 
+
 # todo: add to window as keyword argument
 def set_sharp_pixel_scaling(is_sharp_pixel_scaling: bool):
     """Set to true to keep pixels sharp when scaling sprites.
