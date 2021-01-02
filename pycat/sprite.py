@@ -108,7 +108,7 @@ class Sprite(BaseSprite):
         return False
 
     def get_touching_sprites(self) -> List['Sprite']:
-        """Returns a list of other sprites that it is touching.
+        """Returns a list of other sprites touching this sprite.
         """
         if not self.is_visible:
             return []

@@ -22,7 +22,7 @@ def cancel_updates(delay, update_times, soft_update_times):
         print(update_times[i])
         print(soft_update_times[i])
         print("----------------------")
-    window.exit()
+    window.close()
 
 
 def start_test_update(delay, arg):

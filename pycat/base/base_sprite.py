@@ -1,8 +1,8 @@
 """The base_sprite module defines the BaseSprite class."""
 
+from enum import Enum, auto
 from random import uniform
-from typing import List, Optional, Tuple, Union, Set
-from enum import auto, Enum
+from typing import List, Optional, Set, Tuple, Union
 
 from pycat.base.color import Color
 from pycat.base.event.window_event_subscriber import WindowEventSubscriber
@@ -10,8 +10,7 @@ from pycat.base.image import Animation, Image, Texture
 from pycat.geometry.point import Point
 from pycat.math import (get_degrees_from_direction,
                         get_direction_from_degrees,
-                        get_rotated_point,
-                        get_distance)
+                        get_distance, get_rotated_point)
 
 from pyglet.sprite import Sprite as PygletSprite
 
@@ -53,6 +52,7 @@ class BaseSprite(WindowEventSubscriber):
         self.__image_file = ""
         self.__rotation = 0.0
         self.__is_right_facing = True
+        self.__forward_direction = get_direction_from_degrees(self.__rotation)
 
     @classmethod
     def create_from_file(cls,
@@ -124,8 +124,13 @@ class BaseSprite(WindowEventSubscriber):
         else:
             self._sprite.x, self._sprite.y = p
 
-    def limit_position_to_area(self, min_x: float, max_x: float, min_y: float,
-                               max_y: float):
+    def limit_position_to_area(
+            self,
+            min_x: float,
+            max_x: float,
+            min_y: float,
+            max_y: float
+            ):
         """Restrict the sprite's position to a rectangular region."""
         if self.x < min_x:
             self.x = min_x
@@ -154,6 +159,7 @@ class BaseSprite(WindowEventSubscriber):
     @rotation.setter
     def rotation(self, degrees: float):
         self.__rotation = degrees
+        self.__forward_direction = get_direction_from_degrees(self.__rotation)
         if self.rotation_mode is RotationMode.ALL_AROUND:
             self.image_rotation = degrees
         elif self.rotation_mode is RotationMode.RIGHT_LEFT:
@@ -231,10 +237,10 @@ class BaseSprite(WindowEventSubscriber):
         self._sprite.scale = scale
 
     def scale_to_width(self, new_width: float):
-        self.scale = new_width/self.width
+        self.scale *= new_width/self.width
 
     def scale_to_height(self, new_height: float):
-        self.scale = new_height/self.height
+        self.scale *= new_height/self.height
 
     @property
     def scale_x(self) -> float:
@@ -384,21 +390,22 @@ class BaseSprite(WindowEventSubscriber):
     def move_forward(self, step_size: float):
         """Move the sprite forward by step_size pixels.
 
-        The forward direction is defined locally, i.e. if the sprite
-        is rotated 90 degrees then forward is up.
+        The forward direction is based on a sprite's `self.rotation`.
+        If `self.rotation = 0` then forward is facing right.
         """
-        v = get_direction_from_degrees(self.rotation)
-        self.position += Point(v.x * step_size, v.y * step_size)
+        self.position += step_size * self.__forward_direction
 
     def goto(self, other_sprite: 'BaseSprite') -> None:
         """Go to another Sprite's position."""
         self.position = other_sprite.position
 
-    def goto_random_position_in_region(self,
-                                       min_x: float = 0,
-                                       min_y: float = 0,
-                                       max_x: float = 0,
-                                       max_y: float = 0):
+    def goto_random_position_in_region(
+            self,
+            min_x: float = 0,
+            min_y: float = 0,
+            max_x: float = 0,
+            max_y: float = 0
+            ):
         """Go to a random point inside a rectangular region."""
         offset: Point = Point(self.width, self.height) / 2
         low_bound = Point(min_x, min_y) + offset

@@ -36,6 +36,8 @@ class ColorSprite(Sprite):
     def on_create(self):
         self.goto_random_position()
         self.color = Color(0, 255, 100)
+        x = self.color.r + self.color.g + self.color.b
+        print(x)
         self.opacity = randint(50, 150)
         self.scale_x = randint(50, 200)
         self.scale_y = randint(50, 200)

@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import Callable, List, Optional, Set, Type
+from typing import Callable, List, Optional, Set, TypeVar
 
 from pycat.base.base_sprite import BaseSprite
 from pycat.base.base_window import BaseWindow
@@ -9,6 +9,8 @@ from pycat.debug.draw import draw_sprite_rects
 from pycat.label import Label
 from pycat.scheduler import Scheduler
 from pycat.sprite import Sprite
+
+T = TypeVar('T')
 
 
 class SpriteCreationError(Exception):
@@ -50,6 +52,7 @@ class Window(BaseWindow):
 
         # add new sprites to a separate list after update
         self.__new_sprites: List[Sprite] = list()
+        self.__new_labels: List[Label] = list()
 
         self.__pre_draw: Optional[Callable[[None], None]] = None
         self.on_draw(self.__auto_draw)
@@ -60,19 +63,39 @@ class Window(BaseWindow):
     ##################################################################
     # Label management
     ##################################################################
-
     def add_label(self, label: Label):
         self.__labels.append(label)
+
+    # todo: use protocol for label_cls type
+    def create_label(self, label_cls: Callable[..., T] = Label) -> T:
+        label = label_cls()
+        label.on_create()
+        self.__new_labels.append(label)
+        return label
 
     ##################################################################
     # Sprite management
     ##################################################################
-
-    def create_sprite(self, sprite_cls: Type[Sprite] = Sprite, **kwargs):
+    # todo: use protocol for sprite_cls type
+    def create_sprite(
+            self,
+            sprite_cls: Callable[..., T] = Sprite,
+            **kwargs
+            ) -> T:
         # Sanity check kwargs
         for arg_name in kwargs:
-            if arg_name not in ['tag', 'tags', 'image', 'x', 'y', 'scale', 'scale_x', 
-                                'scale_y', 'color', 'layer', 'position', 'rotation']:
+            if arg_name not in ['tag',
+                                'tags',
+                                'image',
+                                'x',
+                                'y',
+                                'scale',
+                                'scale_x',
+                                'scale_y',
+                                'color',
+                                'layer',
+                                'position',
+                                'rotation']:
                 raise SpriteCreationError("You may not set '" + arg_name +
                                           "' when creating a sprite")
 
@@ -179,13 +202,15 @@ class Window(BaseWindow):
     ##################################################################
     # Key input
     ##################################################################
-
+    # rename to is_key_pressed?
     def get_key(self, keycode: int) -> bool:
         return keycode in self.__keys
 
+    # rename to is_key_down?
     def get_key_down(self, keycode: int) -> bool:
         return keycode in self.__keys_down
 
+    # rename to is_key_up?
     def get_key_up(self, keycode: int) -> bool:
         return keycode in self.__keys_up
 
@@ -228,13 +253,20 @@ class Window(BaseWindow):
         self.__sprites.sort()
         self.__new_sprites.clear()
 
-    def __remove_old_sprites(self):
+    def __add_new_labels(self):
+        for label in self.__new_labels:
+            self.__labels.append(label)
 
-        # priority queue won't work since we are removing arbitrary sprites
-        # if we restrict the number of layers to a constant range, e.g. 0-10
-        # then we could bin sprites to get O(1) removal amd no sort
+        self.__new_labels.clear()
+
+    def __remove_old_sprites(self):
         self.__sprites = [
             sprite for sprite in self.__sprites if not sprite.is_deleted
+        ]
+
+    def __remove_old_labels(self):
+        self.__labels = [
+            label for label in self.__labels if not label.is_deleted
         ]
 
     def __game_loop(self, dt: float):
@@ -253,9 +285,14 @@ class Window(BaseWindow):
         for sprite in self.__sprites:
             sprite.on_update(dt)
 
+        for label in self.__labels:
+            label.on_update(dt)
+
         self.__remove_old_sprites()
+        self.__remove_old_labels()
 
         self.__add_new_sprites()
+        self.__add_new_labels()
 
         if self.__enforce_window_limits:
             for sprite in self.__sprites:
@@ -264,6 +301,7 @@ class Window(BaseWindow):
         if self.draw_fps:
             self._fps_label.update()
 
+    # todo: list out event kwargs
     def run(self, **kwargs):
         Scheduler.update(self.__game_loop)
         self.__game_loop_running = True

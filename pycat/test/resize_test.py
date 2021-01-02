@@ -30,6 +30,7 @@ class SharpPixelSprite(Sprite):
         self.image = "img/pixelish.png"
         self.position = Point(self.width, self.height)/2
 
+
 s = w.create_sprite(position=w.center, color=Color.AZURE)
 s.scale_to_width(w.width)
 s = w.create_sprite(position=w.center, color=Color.CHARTREUSE)
