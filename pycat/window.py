@@ -69,6 +69,7 @@ class Window(BaseWindow):
     # todo: use protocol for label_cls type
     def create_label(self, label_cls: Callable[..., T] = Label) -> T:
         label = label_cls()
+        label.y = self.height
         label.on_create()
         self.__new_labels.append(label)
         return label
