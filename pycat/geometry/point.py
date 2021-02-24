@@ -1,5 +1,6 @@
 """The point module implements a simple 2-dimensional Point class."""
 
+import math
 
 class Point:
     __slots__ = ['x', 'y']
@@ -35,3 +36,12 @@ class Point:
 
     def __str__(self):
         return str(self.x) + "," + str(self.y)
+
+    def magnitude(self):
+        return math.sqrt(self.x**2 + self.y**2)
+
+    def normalize(self):
+        mag = self.magnitude()
+        self.x = self.x / mag
+        self.y = self.y / mag
+
