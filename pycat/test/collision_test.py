@@ -14,7 +14,7 @@ class RotatingSprite(Sprite):
         self.position = window.center
 
     def on_update(self, dt):
-        if window.get_key(KeyCode.SPACE):
+        if window.is_key_pressed(KeyCode.SPACE):
             self.rotation += 2
 
 
@@ -33,9 +33,9 @@ class DragSprite(Sprite):
             self.position += d
 
     def on_update(self, dt):
-        if window.get_key(KeyCode.LEFT):
+        if window.is_key_pressed(KeyCode.LEFT):
             self.rotation += 2
-        elif window.get_key(KeyCode.RIGHT):
+        elif window.is_key_pressed(KeyCode.RIGHT):
             self.rotation -= 2
         if is_rotated_box_collision(self, s1):
             self.color = (255, 0, 0)

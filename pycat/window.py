@@ -202,16 +202,13 @@ class Window(BaseWindow):
     ##################################################################
     # Key input
     ##################################################################
-    # rename to is_key_pressed?
-    def get_key(self, keycode: int) -> bool:
+    def is_key_pressed(self, keycode: int) -> bool:
         return keycode in self.__keys
 
-    # rename to is_key_down?
-    def get_key_down(self, keycode: int) -> bool:
+    def is_key_down(self, keycode: int) -> bool:
         return keycode in self.__keys_down
 
-    # rename to is_key_up?
-    def get_key_up(self, keycode: int) -> bool:
+    def is_key_up(self, keycode: int) -> bool:
         return keycode in self.__keys_up
 
     def __on_key_press(self, e: KeyEvent):

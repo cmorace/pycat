@@ -76,16 +76,16 @@ class Sprite(BaseSprite):
         self.x = randint(0, self._window.width)
         self.y = randint(0, self._window.height)
 
-    def touching_window_edge(self) -> bool:
+    def is_touching_window_edge(self) -> bool:
         return (self.x <= 0 or self.x >= self._window.width or self.y <= 0
                 or self.y >= self._window.height)
 
-    def touching_sprite(self, sprite: 'Sprite') -> bool:
+    def is_touching_sprite(self, sprite: 'Sprite') -> bool:
         return (self.is_visible
                 and sprite.is_visible
                 and is_rotated_box_collision(self, sprite))
 
-    def touching_any_sprite(self):
+    def is_touching_any_sprite(self) -> bool:
         if not self.is_visible:
             return False
         for s in self._window.get_all_sprites():
@@ -95,7 +95,7 @@ class Sprite(BaseSprite):
                 return True
         return False
 
-    def touching_any_sprite_with_tag(self, tag: str):
+    def is_touching_any_sprite_with_tag(self, tag: str) -> bool:
         """Checks if sprite is touching any other sprite with appropriate tag.
         """
         if not self.is_visible:

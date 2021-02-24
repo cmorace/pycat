@@ -1,7 +1,7 @@
 """This is a test to check batch rendering and event handling performance.
 
 The class `pycat.base.Sprite` now inherits from the `WindowEventListener`
-calss and can receive any window event by overriding a set of methods
+class and can receive any window event by overriding a set of methods
 and adding the sprite to a window using the
 `window.add_window_event_listener(s: WindowEventListener)` method.
 In order to be collected by the garbage collector, they must also
