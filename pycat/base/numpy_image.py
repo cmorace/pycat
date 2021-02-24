@@ -39,7 +39,6 @@ class NumpyImage(ndarray):
     # def from_texture(cls, texture: Texture) -> 'NumpyImage':
     #     return
 
-
     @property
     def texture(self) -> Texture:
         return NumpyImage.get_texture_from_array(self)
@@ -56,16 +55,13 @@ class NumpyImage(ndarray):
     def channels(self) -> int:
         return 1 if len(self.shape) == 2 else self.shape[2]
 
-    
-
-
     @staticmethod
     def get_array_from_file(file: str) -> ndarray:
         """Return a numpy array of pixel data from an image file."""
         return NumpyImage.get_array_from_texture(load_image(file))
 
     @staticmethod
-    def get_array_from_texture(texture) -> ndarray:
+    def get_array_from_texture(texture: Texture) -> ndarray:
         return NumpyImage.get_array_from_image_data(texture.get_image_data())
 
     @staticmethod

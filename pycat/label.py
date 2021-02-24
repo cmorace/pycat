@@ -118,9 +118,26 @@ class Label:
     # def on_left_click(self):
     #     pass
 
-    # def limit_position_to_area(self, min_x: int, max_x: int, min_y: int,
-    #                            max_y: int):
-    #     pass
+    def limit_position_to_area(
+            self,
+            min_x: float,
+            max_x: float,
+            min_y: float,
+            max_y: float
+            ):
+        """Restrict the label's position to a rectangular region."""
+        half_width = self.content_width / 2
+        half_height = self.content_height / 2
+        center_x = self.x + half_width
+        center_y = self.y - half_height
+        if center_x < min_x:
+            self.x = min_x - half_width
+        elif center_x > max_x:
+            self.x = max_x - half_width
+        if center_y < min_y:
+            self.y = min_y + half_height
+        elif center_y > max_y:
+            self.y = max_y + half_height
 
     def on_create(self):
         pass

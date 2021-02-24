@@ -10,6 +10,7 @@ from pycat.label import Label
 from pycat.scheduler import Scheduler
 from pycat.sprite import Sprite
 
+# TypeVar for returning subclassed types from on_create() methods
 T = TypeVar('T')
 
 
@@ -63,13 +64,11 @@ class Window(BaseWindow):
     ##################################################################
     # Label management
     ##################################################################
-    def add_label(self, label: Label):
-        self.__labels.append(label)
 
     # todo: use protocol for label_cls type
     def create_label(self, label_cls: Callable[..., T] = Label) -> T:
         label = label_cls()
-        label.y = self.height
+        label.y = self.height  # default y set to top of window
         label.on_create()
         self.__new_labels.append(label)
         return label
@@ -298,6 +297,8 @@ class Window(BaseWindow):
         if self.__enforce_window_limits:
             for sprite in self.__sprites:
                 sprite.limit_position_to_area(0, self.width, 0, self.height)
+            for label in self.__labels:
+                label.limit_position_to_area(0, self.width, 0, self.height)
 
         if self.draw_fps:
             self._fps_label.update()

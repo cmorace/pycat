@@ -247,7 +247,7 @@ class BaseSprite(WindowEventSubscriber):
         """The sprite's scale in its local x-direction.
 
         Setting the `scale_x` property will shrink/stretch the image
-        along the sprit's horizontal axis. Negative values will flip
+        along the sprite's horizontal axis. Negative values will flip
         the image across it's vertical axis
         """
         return self._sprite.scale_x
@@ -261,7 +261,7 @@ class BaseSprite(WindowEventSubscriber):
         """The sprite's scale in its local y-direction.
 
         Setting the `scale_y` property will shrink/stretch the image
-        along the sprit's vertical axis. Negative values will flip
+        along the sprite's vertical axis. Negative values will flip
         the image across it's horizontal axis
         """
         return self._sprite.scale_y
@@ -384,7 +384,7 @@ class BaseSprite(WindowEventSubscriber):
         return (-d.x < q.x < d.x) and (-d.y < q.y < d.y)
 
     ##################################################################
-    # Scratch languge
+    # Scratch language
     ##################################################################
 
     def move_forward(self, step_size: float):

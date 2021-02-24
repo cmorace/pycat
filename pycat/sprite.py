@@ -11,7 +11,7 @@ class Sprite(BaseSprite):
 
     Never instantiate this class directly, it may only be created by a Window.
     The connection to a Window provides additional functionality.
-    Primarially:
+    Primarily:
     - `on_create` is called when the sprite is added to the window
     - `on_update` is scheduled to be called 60 times a second
     - `on_click` is called when the sprite is clicked!
@@ -96,7 +96,7 @@ class Sprite(BaseSprite):
         return False
 
     def touching_any_sprite_with_tag(self, tag: str):
-        """Checks if sprite is touching any other sprite with appropiate tag.
+        """Checks if sprite is touching any other sprite with appropriate tag.
         """
         if not self.is_visible:
             return False
