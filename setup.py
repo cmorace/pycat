@@ -5,17 +5,17 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pycat",
-    version="0.0.7",
+    version="0.0.8",
     author="Charles Morace & David White",
     author_email="charles.c.morace@gmail.com & white.dh@gmail.com",
-    description="pycat: A Python game framework simplifying game developement with pyglet.",
+    description="pycat: A Python game framework simplifying game development with pyglet.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    # url="https://github.com/cmorace/peanuts_python_library",
     install_requires=[
-          'pyglet',
-          'numpy',
-          'Pillow'  # just used in tool_image_cropper project right now
+          'pyglet>=1.5.15',
+          'numpy>=1.20.1',
+          'triangle>=20200424'
+          'Pillow>=8.1.0'  # just used in tool_image_cropper project right now
       ],
     packages=setuptools.find_packages(),
     classifiers=[

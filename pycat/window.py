@@ -157,66 +157,55 @@ class Window(BaseWindow):
 
     def create_line(
         self,
-        a: Point = None,
-        b: Point = None,
+        x1: float = 0, y1: float = 0,
+        x2: float = 100, y2: float = 100,
         width=1,
         color: Color = Color.WHITE
-    ):
-        if not (a and b):
-            a = Point(0, 0)
-            b = Point(self.width, self.height)
-            line = Line(a, b, width, color=color)
-        else:
-            line = Line(a, b, width, color=color)
+    ) -> Line:
 
+        a = Point(x1, y1)
+        b = Point(x2, y2)
+        line = Line(a, b, width, color=color)
         self.__drawables.append(line)
         return line
 
     def create_triangle(
         self,
-        a: Point = None,
-        b: Point = None,
-        c: Point = None,
+        x1: float = 0, y1: float = 0,
+        x2: float = 100, y2: float = 0,
+        x3: float = 50, y3: float = 86.6,
         color: Color = Color.WHITE
-    ):
-        if a and b and c:
-            tri = Triangle(a, b, c, color)
-        else:
-            a = Point(0, 0)
-            b = Point(self.center.x, self.height)
-            b = Point(self.center.x, self.height)
-            c = Point(self.width, 0)
-            tri = Triangle(a, b, c, color)
+    ) -> Triangle:
 
+        a = Point(x1, y1)
+        b = Point(x2, y2)
+        c = Point(x3, y3)
+        tri = Triangle(a, b, c, color)
         self.__drawables.append(tri)
         return tri
 
     def create_circle(
         self,
-        center: Point = None,
+        x: float = 0,
+        y: float = 0,
         radius: float = 100,
         color: Color = Color.WHITE
-    ):
-        if center:
-            c = Circle(center, radius, color=color)
-        else:
-            c = Circle(self.center, radius, color=color)
+    ) -> Circle:
 
+        c = Circle(Point(x, y), radius, color=color)
         self.__drawables.append(c)
         return c
 
     def create_rect(
         self,
-        center: Point = None,
+        x: float,
+        y: float,
         width: float = 100,
-        height: float = 100, 
+        height: float = 100,
         color: Color = Color.WHITE
-    ):
-        if center:
-            r = Rectangle(center, width, height, color=color)
-        else:
-            r = Rectangle(self.center, width, height, color=color)
+    ) -> Rectangle:
 
+        r = Rectangle(Point(x, y), width, height, color=color)
         self.__drawables.append(r)
         return r
 
@@ -288,6 +277,7 @@ class Window(BaseWindow):
 
         if self.draw_fps:
             self._fps_label.draw()
+            
 
     ##################################################################
     # Key input

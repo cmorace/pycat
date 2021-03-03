@@ -2,9 +2,8 @@ from pycat.core import Window, Point
 from pycat.math import get_direction_from_degrees
 
 window = Window()
-a = Point(window.width / 2, 0)
-b = Point(a.x, 0.35 * window.height)
-branch = window.create_line(a, b, width=2)
+x, y1, y2 = window.width / 2, 0, 0.35 * window.height
+branch = window.create_line(x, y1, x, y2, width=2)
 
 
 def make_tree(
@@ -18,13 +17,13 @@ def make_tree(
     if height > 0:
 
         b1 = a + length * get_direction_from_degrees(rotation+dr)
-        window.create_line(a, b1, width=2)
+        window.create_line(a.x, a.y, b1.x, b1.y, width=2)
         make_tree(b1, rotation+dr, length*ds, height-1)
 
         b2 = a + length * get_direction_from_degrees(rotation-dr)
-        window.create_line(a, b2, width=2)
+        window.create_line(a.x, a.y, b2.x, b2.y, width=2)
         make_tree(b2, rotation-dr, length*ds, height-1)
 
 
-make_tree(b, length=b.y)
+make_tree(Point(branch.x2, branch.y2), length=branch.y2)
 window.run()
