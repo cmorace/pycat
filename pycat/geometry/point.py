@@ -2,7 +2,8 @@
 
 import math
 
-class Point:
+
+class Point():
     __slots__ = ['x', 'y']
 
     def __init__(self, x: float = 0, y: float = 0):
@@ -44,4 +45,3 @@ class Point:
         mag = self.magnitude()
         self.x = self.x / mag
         self.y = self.y / mag
-

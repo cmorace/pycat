@@ -1,17 +1,25 @@
 from threading import Lock
-from typing import Callable, List, Optional, Set, TypeVar
+from typing import Callable, List, Optional, Set, TypeVar, Protocol
 
 from pycat.base.base_sprite import BaseSprite
 from pycat.base.base_window import BaseWindow
+from pycat.base.color import Color
 from pycat.base.event.key_event import KeyEvent
 from pycat.base.event.mouse_event import MouseButton, MouseEvent
 from pycat.debug.draw import draw_sprite_rects
 from pycat.label import Label
 from pycat.scheduler import Scheduler
 from pycat.sprite import Sprite
+from pycat.geometry.point import Point
+from pycat.shape import Line, Triangle, Circle, Rectangle
 
 # TypeVar for returning subclassed types from on_create() methods
 T = TypeVar('T')
+
+
+class Drawable(Protocol):
+    def draw() -> None:
+        ...
 
 
 class SpriteCreationError(Exception):
@@ -50,6 +58,7 @@ class Window(BaseWindow):
 
         self.__sprites: List[Sprite] = list()
         self.__labels: List[Label] = list()
+        self.__drawables: List[Drawable] = list()
 
         # add new sprites to a separate list after update
         self.__new_sprites: List[Sprite] = list()
@@ -143,6 +152,84 @@ class Window(BaseWindow):
               + '\n\t'.join([str(s) for s in self.__sprites]))
 
     ##################################################################
+    # Shape management
+    ##################################################################
+
+    def create_line(
+        self,
+        a: Point = None,
+        b: Point = None,
+        width=1,
+        color: Color = Color.WHITE
+    ):
+        if not (a and b):
+            a = Point(0, 0)
+            b = Point(self.width, self.height)
+            line = Line(a, b, width, color=color)
+        else:
+            line = Line(a, b, width, color=color)
+
+        self.__drawables.append(line)
+        return line
+
+    def create_triangle(
+        self,
+        a: Point = None,
+        b: Point = None,
+        c: Point = None,
+        color: Color = Color.WHITE
+    ):
+        if a and b and c:
+            tri = Triangle(a, b, c, color)
+        else:
+            a = Point(0, 0)
+            b = Point(self.center.x, self.height)
+            b = Point(self.center.x, self.height)
+            c = Point(self.width, 0)
+            tri = Triangle(a, b, c, color)
+
+        self.__drawables.append(tri)
+        return tri
+
+    def create_circle(
+        self,
+        center: Point = None,
+        radius: float = 100,
+        color: Color = Color.WHITE
+    ):
+        if center:
+            c = Circle(center, radius, color=color)
+        else:
+            c = Circle(self.center, radius, color=color)
+
+        self.__drawables.append(c)
+        return c
+
+    def create_rect(
+        self,
+        center: Point = None,
+        width: float = 100,
+        height: float = 100, 
+        color: Color = Color.WHITE
+    ):
+        if center:
+            r = Rectangle(center, width, height, color=color)
+        else:
+            r = Rectangle(self.center, width, height, color=color)
+
+        self.__drawables.append(r)
+        return r
+
+    def add_drawable(
+        self,
+        drawable: Drawable
+    ):
+        self.__drawables.append(drawable)
+
+    def clear_drawables(self):
+        self.__drawables.clear()
+
+    ##################################################################
     # Background sprite
     ##################################################################
 
@@ -192,6 +279,9 @@ class Window(BaseWindow):
 
         for label in self.__labels:
             label.draw()
+
+        for drawable in self.__drawables:
+            drawable.draw()
 
         if self.__post_draw:
             self.__post_draw()

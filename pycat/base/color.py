@@ -53,7 +53,7 @@ class Color(tuple):
     AMBER = RGB(241, 182, 24)
     CHARTREUSE = RGB(199, 235, 41)
     TEAL = RGB(48, 133, 198)
-    VIOLET = RGB(60, 235, 153)
+    VIOLET = RGB(127, 0, 255)
     MAGENTA = RGB(151, 18, 68)
     CYAN = RGB(71, 255, 253)
     AZURE = RGB(55, 108, 254)

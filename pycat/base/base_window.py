@@ -2,15 +2,15 @@
 
 from typing import Callable, Union
 
-from pycat.base.event.window_event_subscriber import WindowEventSubscriber
 from pycat.base.event.window_event_manager import WindowEventManager
+from pycat.base.event.window_event_subscriber import WindowEventSubscriber
 from pycat.debug.fps_label import FpsLabel
 from pycat.geometry.point import Point
 from pycat.scheduler import Scheduler
 from pyglet import app
-from pyglet.window import Window as PygletWindow
 from pyglet.gl.gl import glClearColor
-from pyglet.image import get_buffer_manager, BufferManager, ColorBufferImage
+from pyglet.image import BufferManager, ColorBufferImage, get_buffer_manager
+from pyglet.window import Window as PygletWindow
 
 
 class BaseWindow:
@@ -33,7 +33,12 @@ class BaseWindow:
             height (int, optional): the height in pixels. Defaults to 640.
             title (str, optional): text displayed in title bar. Defaults to "".
         """
-        self._window = PygletWindow(width, height, caption=title)
+        self._window = PygletWindow(
+                        width,
+                        height,
+                        caption=title,
+                        vsync=True
+                       )
         self._event_manager = WindowEventManager(self._window)
         # for testing convenience
         self._fps_label = FpsLabel()  # needs to be updated and drawn by user
@@ -74,11 +79,18 @@ class BaseWindow:
         """
         return key == self._event_manager.active_key
 
-    def run(self, **kwargs):
+    def run(
+            self,
+            draw_function: Callable[..., None] = None,
+            **kwargs
+            ):
         """Start the application.
 
         Optional keywords can be set for window event callbacks.
         """
+        if draw_function:
+            self.on_draw(draw_function)
+
         self.subscribe(**kwargs)
         app.run()
 
@@ -125,8 +137,9 @@ class BaseWindow:
         or the directory set by `set_resource_directory`.
         """
         buffer: BufferManager = get_buffer_manager()
-        buffer_img: ColorBufferImage = buffer.get_color_buffer()
-        buffer_img.save(file)
+        if buffer:
+            buffer_img: ColorBufferImage = buffer.get_color_buffer()
+            buffer_img.save(file)
 
     #   Events
     # -----------------------------------------------------------------------
