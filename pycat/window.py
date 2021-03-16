@@ -104,7 +104,8 @@ class Window(BaseWindow):
                                 'color',
                                 'layer',
                                 'position',
-                                'rotation']:
+                                'rotation',
+                                'opacity']:
                 raise SpriteCreationError("You may not set '" + arg_name +
                                           "' when creating a sprite")
 
