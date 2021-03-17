@@ -82,6 +82,7 @@ class BaseWindow:
     def run(
             self,
             draw_function: Callable[..., None] = None,
+            update_function: Callable[..., None] = None,
             **kwargs
             ):
         """Start the application.
@@ -90,6 +91,9 @@ class BaseWindow:
         """
         if draw_function:
             self.on_draw(draw_function)
+
+        if update_function:
+            self.on_update(update_function)
 
         self.subscribe(**kwargs)
         app.run()
@@ -100,10 +104,6 @@ class BaseWindow:
          It will also quit the application.
          """
         self._window.close()
-
-    def exit(self):
-        """Exit the application."""
-        app.exit()
 
     #   Drawing
     # -----------------------------------------------------------------------

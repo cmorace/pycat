@@ -12,14 +12,17 @@ from pycat.scheduler import Scheduler
 from pycat.sprite import Sprite
 from pycat.geometry.point import Point
 from pycat.shape import Line, Triangle, Circle, Rectangle
+from pycat.base.gl import set_sharp_pixel_scaling
 
-# TypeVar for returning subclassed types from on_create() methods
-T = TypeVar('T')
 
 
 class Drawable(Protocol):
     def draw() -> None:
         ...
+
+
+# TypeVar for returning subclassed types from on_create() methods
+T = TypeVar('T', bound=Drawable)
 
 
 class SpriteCreationError(Exception):
@@ -33,11 +36,13 @@ class Window(BaseWindow):
                  background_image: Optional[str] = None,
                  enforce_window_limits: bool = True,
                  draw_sprite_rects: bool = False,
+                 is_sharp_pixel_scaling: bool = False,
                  title: str = ""):
         super().__init__(width, height, title)
 
         self.draw_fps = False
         self.draw_sprite_rects = draw_sprite_rects
+        self.__is_sharp_pixel_scaling = is_sharp_pixel_scaling
 
         self.__background_sprite: Optional[BaseSprite] = None
         self.background_image = background_image
@@ -211,9 +216,10 @@ class Window(BaseWindow):
 
     def add_drawable(
         self,
-        drawable: Drawable
-    ):
+        drawable: T
+    ) -> T:
         self.__drawables.append(drawable)
+        return drawable
 
     def clear_drawables(self):
         self.__drawables.clear()
@@ -263,6 +269,9 @@ class Window(BaseWindow):
         for sprite in self.__sprites:
             sprite.draw()
 
+        if self.__is_sharp_pixel_scaling:
+            set_sharp_pixel_scaling(True)
+
         if self.draw_sprite_rects:
             draw_sprite_rects(self.__sprites)
 
@@ -278,7 +287,6 @@ class Window(BaseWindow):
         if self.draw_fps:
             self._fps_label.draw()
             
-
     ##################################################################
     # Key input
     ##################################################################
@@ -382,6 +390,8 @@ class Window(BaseWindow):
 
     # todo: list out event kwargs
     def run(self, **kwargs):
+        if self.__is_sharp_pixel_scaling:
+            set_sharp_pixel_scaling(True)
         Scheduler.update(self.__game_loop)
         self.__game_loop_running = True
         super().run(**kwargs)

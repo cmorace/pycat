@@ -395,7 +395,7 @@ class BaseSprite(WindowEventSubscriber):
         """
         self.position += step_size * self.__forward_direction
 
-    def goto(self, other_sprite: 'BaseSprite') -> None:
+    def goto(self, other_sprite: 'BaseSprite'):
         """Go to another Sprite's position."""
         self.position = other_sprite.position
 

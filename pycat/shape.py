@@ -1,8 +1,10 @@
 from typing import List
+
 from pyglet import shapes
 
-from pycat.geometry import Point
+
 from pycat.base.color import Color
+from pycat.geometry import Point
 
 
 class Line(shapes.Line):
@@ -85,8 +87,6 @@ class Rectangle(shapes.Rectangle):
                          height=height,
                          color=color)
 
-        self.anchor_position = width/2, height/2
-
 
 class Arc(shapes.Arc):
 
@@ -128,8 +128,6 @@ class BorderedRect(shapes.BorderedRectangle):
                          color=fill_color,
                          border_color=border_color)
 
-        self.anchor_position = width/2, height/2
-
 
 class Polyline():
 
@@ -140,6 +138,7 @@ class Polyline():
         color: Color = Color.CYAN,
         is_closed: bool = False
     ):
+        # todo: triangulate line segments' joints
         self.lines = [Line(points[i], points[i+1], width, color)
                       for i in range(len(points)-1)]
         self.is_closed = is_closed
@@ -153,21 +152,15 @@ class Polyline():
 
 class Polygon():
     def __init__(self, points: List[Point], is_wireframe: bool = False):
+
+        # triangle failed to install on a student's home pc
+        # making it an optional dependency until we find a solution
+        from triangle import triangulate
         from numpy import array
+
         self.boundary_array = array([[p.x, p.y] for p in points])
         self.is_wireframe = is_wireframe
 
-        # from scipy.spatial import Delaunay
-        # Scipy's Delaunay is unconstrained (convex hull only)
-        # self.complex = Delaunay(self.boundary_array)
-        # self.mesh = [Triangle(points[s[0]], points[s[1]], points[s[2]])
-        #              for s in self.complex.simplices]
-        # if is_wireframe:
-        #     self.wireframe = [
-        #         Polyline(tri.get_points(), is_closed=True, color=Color.BLACK)
-        #         for tri in self.mesh]
-
-        from triangle import triangulate
         segments = [[i, i+1] for i in range(len(self.boundary_array))]
         segments.append([0, len(self.boundary_array) - 1])
         self.complex = triangulate({'vertices': self.boundary_array,
@@ -176,7 +169,7 @@ class Polygon():
         points = [Point(v[0], v[1]) for v in self.complex['vertices']]
         self.mesh = [Triangle(points[t[0]], points[t[1]], points[t[2]])
                      for t in self.complex['triangles']]
-        
+
         if is_wireframe:
             self.wireframe = [
                 Polyline(tri.get_points(), is_closed=True, color=Color.BLACK)
