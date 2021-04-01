@@ -1,19 +1,18 @@
 from threading import Lock
-from typing import Callable, List, Optional, Set, TypeVar, Protocol
+from typing import Callable, List, Optional, Protocol, Set, TypeVar
 
 from pycat.base.base_sprite import BaseSprite
 from pycat.base.base_window import BaseWindow
 from pycat.base.color import Color
 from pycat.base.event.key_event import KeyEvent
 from pycat.base.event.mouse_event import MouseButton, MouseEvent
-from pycat.debug.draw import draw_sprite_rects
-from pycat.label import Label
-from pycat.scheduler import Scheduler
-from pycat.sprite import Sprite
-from pycat.geometry.point import Point
-from pycat.shape import Line, Triangle, Circle, Rectangle
 from pycat.base.gl import set_sharp_pixel_scaling
-
+from pycat.base.graphics_batch import GraphicsBatch
+from pycat.debug.draw import draw_sprite_rects
+from pycat.geometry.point import Point
+from pycat.label import Label
+from pycat.shape import Circle, Line, Rectangle, Triangle
+from pycat.sprite import Sprite
 
 
 class Drawable(Protocol):
@@ -40,7 +39,6 @@ class Window(BaseWindow):
                  title: str = ""):
         super().__init__(width, height, title)
 
-        self.draw_fps = False
         self.draw_sprite_rects = draw_sprite_rects
         self.__is_sharp_pixel_scaling = is_sharp_pixel_scaling
 
@@ -61,17 +59,19 @@ class Window(BaseWindow):
                        on_key_release=self.__on_key_release,
                        on_mouse_press=self.__on_mouse_press)
 
-        self.__sprites: List[Sprite] = list()
-        self.__labels: List[Label] = list()
-        self.__drawables: List[Drawable] = list()
+        self.__sprites: List[Sprite] = []
+        self.__labels: List[Label] = []
+        self.__drawables: List[Drawable] = []
 
-        # add new sprites to a separate list after update
-        self.__new_sprites: List[Sprite] = list()
-        self.__new_labels: List[Label] = list()
+        self.__graphics_batch: GraphicsBatch = GraphicsBatch()
+        self.__label_batch: GraphicsBatch = GraphicsBatch()
 
-        self.__pre_draw: Optional[Callable[[None], None]] = None
-        self.on_draw(self.__auto_draw)
-        self.__post_draw: Optional[Callable[[None], None]] = None
+        # add new sprites/labels to a separate list after update
+        self.__new_sprites: List[Sprite] = []
+        self.__new_labels: List[Label] = []
+
+        # self.__pre_draw: Optional[Callable[[None], None]] = None
+        # self.__post_draw: Optional[Callable[[None], None]] = None
 
         self.__game_loop_running = False
 
@@ -79,18 +79,18 @@ class Window(BaseWindow):
     # Label management
     ##################################################################
 
-    # todo: use protocol for label_cls type
     def create_label(self, label_cls: Callable[..., T] = Label) -> T:
         label = label_cls()
         label.y = self.height  # default y set to top of window
         label.on_create()
         self.__new_labels.append(label)
+        self.__label_batch.add_label(label)
         return label
 
     ##################################################################
     # Sprite management
     ##################################################################
-    # todo: use protocol for sprite_cls type
+
     def create_sprite(
             self,
             sprite_cls: Callable[..., T] = Sprite,
@@ -140,6 +140,7 @@ class Window(BaseWindow):
             for tag in tags:
                 sprite.add_tag(tag)
 
+        self.__graphics_batch.add_sprite(sprite)
         return sprite
 
     def delete_sprites_with_tag(self, tag):
@@ -261,36 +262,26 @@ class Window(BaseWindow):
     def __auto_draw(self):
         self.clear()
 
-        if self.__pre_draw:
-            self.__pre_draw()
-
         if self.__background_sprite:
             self.__background_sprite.draw()
 
-        for sprite in self.__sprites:
-            sprite.draw()
-
-        if self.__is_sharp_pixel_scaling:
-            set_sharp_pixel_scaling(True)
+        self.__graphics_batch.draw()
 
         if self.draw_sprite_rects:
             draw_sprite_rects(self.__sprites)
 
-        for label in self.__labels:
-            label.draw()
+        if self.__is_sharp_pixel_scaling:
+            set_sharp_pixel_scaling(True)
+
+        self.__label_batch.draw()
 
         for drawable in self.__drawables:
             drawable.draw()
 
-        if self.__post_draw:
-            self.__post_draw()
-
-        if self.draw_fps:
-            self._fps_label.draw()
-            
     ##################################################################
     # Key input
     ##################################################################
+
     def is_key_pressed(self, keycode: int) -> bool:
         return keycode in self.__keys
 
@@ -335,25 +326,36 @@ class Window(BaseWindow):
     def __add_new_sprites(self):
         for sprite in self.__new_sprites:
             self.__sprites.append(sprite)
+            self.__graphics_batch.add_sprite(sprite)
 
-        self.__sprites.sort()
         self.__new_sprites.clear()
 
     def __add_new_labels(self):
         for label in self.__new_labels:
             self.__labels.append(label)
+            self.__graphics_batch.add_label(label)
 
         self.__new_labels.clear()
 
     def __remove_old_sprites(self):
-        self.__sprites = [
-            sprite for sprite in self.__sprites if not sprite.is_deleted
-        ]
+        new_sprite_list = []
+        for s in self.__sprites:
+            if s.is_deleted:
+                self.__graphics_batch.remove_sprite(s)
+            else:
+                new_sprite_list.append(s)
+
+        self.__sprites = new_sprite_list
 
     def __remove_old_labels(self):
-        self.__labels = [
-            label for label in self.__labels if not label.is_deleted
-        ]
+        new_label_list = []
+        for label in self.__labels:
+            if label.is_deleted:
+                self.__graphics_batch.remove_label(label)
+            else:
+                new_label_list.append(label)
+
+        self.__labels = new_label_list
 
     def __game_loop(self, dt: float):
         # ensure all sprites will see the same set of keys this frame
@@ -386,13 +388,25 @@ class Window(BaseWindow):
             for label in self.__labels:
                 label.limit_position_to_area(0, self.width, 0, self.height)
 
-        if self.draw_fps:
-            self._fps_label.update()
-
     # todo: list out event kwargs
-    def run(self, **kwargs):
-        if self.__is_sharp_pixel_scaling:
+    def run(self,
+            draw_function: Callable[[], None] = None,
+            update_function: Callable[[float], None] = None,
+            is_sharp_pixel_scaling: bool = False,
+            **kwargs):
+
+        if is_sharp_pixel_scaling:
+            self.__is_sharp_pixel_scaling = True
             set_sharp_pixel_scaling(True)
-        Scheduler.update(self.__game_loop)
-        self.__game_loop_running = True
-        super().run(**kwargs)
+
+        if draw_function is None:
+            draw_function = self.__auto_draw
+
+        if update_function is None:
+            update_function = self.__game_loop
+            self.__game_loop_running = True
+
+        super().run(
+            draw_function=draw_function,
+            update_function=update_function,
+            **kwargs)

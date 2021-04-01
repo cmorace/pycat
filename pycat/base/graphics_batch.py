@@ -1,5 +1,6 @@
 """Implements the GraphicsBatch class"""
 from pycat.base.base_sprite import BaseSprite
+from pycat.label import Label
 from pyglet.gl import GL_QUADS
 from pyglet.graphics import Batch as PygletBatch
 
@@ -10,6 +11,9 @@ class GraphicsBatch:
 
     def add_sprite(self, sprite: BaseSprite):
         sprite._sprite.batch = self._batch
+
+    def add_label(self, label: Label):
+        label._label.batch = self._batch
 
     def remove_sprite(self, sprite: BaseSprite):
         """Removes a sprite from the batch.
@@ -25,6 +29,9 @@ class GraphicsBatch:
                             mode=GL_QUADS,
                             group=sprite._sprite.group,
                             batch=null_batch)
+
+    def remove_label(self, label: Label):
+        label._label.delete()
 
     def clear(self):
         self._batch = PygletBatch()

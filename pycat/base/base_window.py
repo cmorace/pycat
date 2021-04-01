@@ -4,7 +4,7 @@ from typing import Callable, Union
 
 from pycat.base.event.window_event_manager import WindowEventManager
 from pycat.base.event.window_event_subscriber import WindowEventSubscriber
-from pycat.debug.fps_label import FpsLabel
+# from pycat.debug.fps_label import FpsLabel
 from pycat.geometry.point import Point
 from pycat.scheduler import Scheduler
 from pyglet import app
@@ -40,9 +40,6 @@ class BaseWindow:
                         vsync=True
                        )
         self._event_manager = WindowEventManager(self._window)
-        # for testing convenience
-        self._fps_label = FpsLabel()  # needs to be updated and drawn by user
-        self.draw_fps = False
 
     @property
     def width(self) -> int:
@@ -81,7 +78,7 @@ class BaseWindow:
 
     def run(
             self,
-            draw_function: Callable[..., None] = None,
+            draw_function: Callable[[], None] = None,
             update_function: Callable[..., None] = None,
             **kwargs
             ):

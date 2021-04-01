@@ -1,7 +1,7 @@
 
 from pycat.core import Window, Label, Scheduler
 
-w = Window()
+w = Window(enforce_window_limits=False)
 
 
 class TestLabel(Label):
@@ -12,9 +12,10 @@ class TestLabel(Label):
         self.x = (w.width - self.content_width) / 2
 
     def on_update(self, dt: float):
-        self.y -= 1
-        if self.y < 0:
+        if self.y < 100:
             self.delete()
+        else:
+            self.y -= 10
 
 
 num_labels = 0

@@ -1,6 +1,7 @@
 from typing import List
 
 from pyglet.text import Label as PygletLabel
+from pyglet.graphics import OrderedGroup
 
 from pycat.base import Color
 
@@ -10,84 +11,85 @@ class Label:
                  text: str = '',
                  x: float = 0,
                  y: float = 0,
-                 layer: int = 0,
+                 layer: int = 1,
                  font_size: int = 20,
                  tags: List[str] = []):
-        self.__label = PygletLabel(text, x=x, y=y)
-        self.__label.anchor_x = 'left'
-        self.__label.anchor_y = 'top'
-        self.__label.font_size = font_size
+
+        self._label = PygletLabel(text, x=x, y=y, group=OrderedGroup(layer))
+        self._label.anchor_x = 'left'
+        self._label.anchor_y = 'top'
+        self._label.font_size = font_size
         self.__layer = layer
         self.__is_deleted = False
         self.__tags = tags
         # width must be set to support multiline
-        self.__label.width = 10000
-        self.__label.multiline = True
+        self._label.width = 10000
+        self._label.multiline = True
         self.is_visible = True
 
     @property
     def x(self) -> float:
-        return self.__label.x
+        return self._label.x
 
     @x.setter
     def x(self, new_x: float):
-        self.__label.x = new_x
+        self._label.x = new_x
 
     @property
     def y(self) -> float:
-        return self.__label.y
+        return self._label.y
 
     @y.setter
     def y(self, new_y: float):
-        self.__label.y = new_y
+        self._label.y = new_y
 
     @property
     def text(self) -> str:
-        return self.__label.text
+        return self._label.text
 
     @text.setter
     def text(self, new_text: str):
-        self.__label.text = new_text
+        self._label.text = new_text
 
     @property
     def font_size(self) -> int:
-        return self.__label.font_size
+        return self._label.font_size
 
     @font_size.setter
     def font_size(self, font_size: int):
-        self.__label.font_size = font_size
+        self._label.font_size = font_size
 
     @property
     def font(self) -> str:
-        return self.__label.font_name
+        return self._label.font_name
 
     @font.setter
     def font(self, file_name):
-        self.__label.font_name = file_name
+        self._label.font_name = file_name
 
     @property
     def color(self) -> Color.RGB:
-        return Color.RGB(*self.__label.color[:3])
+        return Color.RGB(*self._label.color[:3])
 
     @color.setter
     def color(self, color: Color.RGB):
-        self.__label.color = (*color, self.__label.color[3])
+        self._label.color = (*color, self._label.color[3])
 
     @property
     def opacity(self) -> int:
-        return self.__label.color[3]
+        return self._label.color[3]
 
     @opacity.setter
     def opacity(self, value: int):
-        self.__label.color = (*self.__label.color[:3], value)
+        self._label.color = (*self._label.color[:3], value)
 
     @property
     def content_width(self):
-        return self.__label.content_width
+        return self._label.content_width
 
     @property
     def content_height(self):
-        return self.__label.content_height
+        return self._label.content_height
 
     @property
     def layer(self) -> int:
@@ -96,6 +98,7 @@ class Label:
     @layer.setter
     def layer(self, layer: int):
         self.__layer = layer
+        self._label._init_groups(OrderedGroup(layer))
 
     @property
     def tags(self):
@@ -106,7 +109,7 @@ class Label:
         return self.__is_deleted
 
     def delete(self):
-        self._is_deleted = True
+        self.__is_deleted = True
 
     # def contains_point(self, p: Point) -> bool:
     #     """@todo"""
@@ -147,4 +150,4 @@ class Label:
 
     def draw(self):
         if self.is_visible:
-            self.__label.draw()
+            self._label.draw()

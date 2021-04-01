@@ -13,6 +13,7 @@ from pycat.math import (get_degrees_from_direction,
                         get_distance, get_rotated_point)
 
 from pyglet.sprite import Sprite as PygletSprite
+from pyglet.graphics import OrderedGroup
 
 
 class RotationMode(Enum):
@@ -45,9 +46,12 @@ class BaseSprite(WindowEventSubscriber):
                  y: float = 0,
                  layer: int = 0):
         """Instantiate a new Sprite."""
-        self.layer = layer
+        self.__layer = layer
         self.rotation_mode = RotationMode.ALL_AROUND
-        self._sprite = PygletSprite(image, x, y, subpixel=True)
+        self._sprite = PygletSprite(image,
+                                    x, y,
+                                    subpixel=True,
+                                    group=OrderedGroup(layer))
         self.__tags: Set[str] = set()
         self.__image_file = ""
         self.__rotation = 0.0
@@ -87,7 +91,7 @@ class BaseSprite(WindowEventSubscriber):
                 + ') with tags: '+', '.join(self.tags))
 
     def __lt__(self, other: 'BaseSprite') -> bool:
-        return self.layer < other.layer
+        return self.__layer < other.__layer
 
     ##################################################################
     # Sprite Position
@@ -192,6 +196,17 @@ class BaseSprite(WindowEventSubscriber):
     def image_rotation(self, degrees: float):
         # rotation is clock-wise positive in pyglet
         self._sprite.rotation = -degrees
+
+    @property
+    def layer(self) -> int:
+        return self.__layer
+
+    @layer.setter
+    def layer(self, layer: int):
+        self.__layer = layer
+        self._sprite.group = OrderedGroup(layer)
+        if self._sprite.batch:
+            self._sprite.batch.invalidate()
 
     ##################################################################
     # Tags

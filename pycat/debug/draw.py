@@ -1,6 +1,7 @@
 from typing import Iterable, Tuple
 from pyglet.shapes import Line
 from pyglet.graphics import Batch
+
 from pycat.collision import _get_sprite_basis_vectors, _get_sprite_vertices
 from pycat.base.base_sprite import BaseSprite as Sprite
 

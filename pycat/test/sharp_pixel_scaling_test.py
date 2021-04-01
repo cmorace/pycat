@@ -1,17 +1,18 @@
 from pycat.core import Window
 
 is_label_created_before = False
+
 window = Window(is_sharp_pixel_scaling=True)
 
 if is_label_created_before:
-    l = window.create_label()
-    l.text = 'image is ok'
+    label = window.create_label()
+    label.text = 'image is ok'
 
 s = window.create_sprite(image='img/pixelish.png', x=100, y=100, scale=30)
 
 if not is_label_created_before:
-    l = window.create_label()
-    l.text = 'image is blurred now'
+    label = window.create_label()
+    label.text = 'image is blurred now'
 
 
 def on_update(dt):
