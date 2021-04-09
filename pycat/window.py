@@ -172,8 +172,8 @@ class Window(BaseWindow):
 
         a = Point(x1, y1)
         b = Point(x2, y2)
-        line = Line(a, b, width, color=color)
-        self.__drawables.append(line)
+        line = Line(a, b, width, color=color, batch=self.__graphics_batch)
+        self.__drawables.append(line)  # no reference -> gc collects
         return line
 
     def create_triangle(
@@ -187,7 +187,8 @@ class Window(BaseWindow):
         a = Point(x1, y1)
         b = Point(x2, y2)
         c = Point(x3, y3)
-        tri = Triangle(a, b, c, color)
+        tri = Triangle(a, b, c, color,
+                       batch=self.__graphics_batch)
         self.__drawables.append(tri)
         return tri
 
@@ -199,7 +200,8 @@ class Window(BaseWindow):
         color: Color = Color.WHITE
     ) -> Circle:
 
-        c = Circle(Point(x, y), radius, color=color)
+        c = Circle(Point(x, y), radius, color=color,
+                   batch=self.__graphics_batch)
         self.__drawables.append(c)
         return c
 
@@ -212,7 +214,8 @@ class Window(BaseWindow):
         color: Color = Color.WHITE
     ) -> Rectangle:
 
-        r = Rectangle(Point(x, y), width, height, color=color)
+        r = Rectangle(Point(x, y), width, height, color=color,
+                      batch=self.__graphics_batch)
         self.__drawables.append(r)
         return r
 
@@ -275,8 +278,8 @@ class Window(BaseWindow):
 
         self.__label_batch.draw()
 
-        for drawable in self.__drawables:
-            drawable.draw()
+        # for drawable in self.__drawables:
+        #     drawable.draw()
 
     ##################################################################
     # Key input

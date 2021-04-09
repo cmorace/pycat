@@ -1,4 +1,5 @@
 from typing import List
+from pycat.base.graphics_batch import GraphicsBatch
 
 from pyglet import shapes
 
@@ -14,14 +15,16 @@ class Line(shapes.Line):
         a: Point,
         b: Point,
         width: float = 1,
-        color: Color = Color.WHITE
+        color: Color = Color.WHITE,
+        batch: GraphicsBatch = None
     ):
         super().__init__(x=a.x,
                          y=a.y,
                          x2=b.x,
                          y2=b.y,
                          width=width,
-                         color=color)
+                         color=color,
+                         batch=batch._batch)
 
 
 class Triangle(shapes.Triangle):
@@ -31,7 +34,8 @@ class Triangle(shapes.Triangle):
         a: Point,
         b: Point,
         c: Point,
-        color: Color = Color.WHITE
+        color: Color = Color.WHITE,
+        batch: GraphicsBatch = None
     ):
         super().__init__(x=a.x,
                          y=a.y,
@@ -54,7 +58,8 @@ class Circle(shapes.Circle):
         center: Point,
         radius: float,
         segments: int = None,
-        color: Color = Color.WHITE
+        color: Color = Color.WHITE,
+        batch: GraphicsBatch = None
     ):
         super().__init__(x=center.x,
                          y=center.y,
@@ -79,7 +84,8 @@ class Rectangle(shapes.Rectangle):
         center: Point,
         width: float,
         height: float,
-        color: Color = Color.WHITE
+        color: Color = Color.WHITE,
+        batch: GraphicsBatch = None
     ):
         super().__init__(x=center.x,
                          y=center.y,
@@ -98,7 +104,8 @@ class Arc(shapes.Arc):
         angle: float = shapes.math.tau,
         start_angle: float = 0,
         is_closed: bool = False,
-        color: Color = Color.WHITE
+        color: Color = Color.WHITE,
+        batch: GraphicsBatch = None
     ):
         super().__init__(x=center.x,
                          y=center.y,
@@ -118,7 +125,8 @@ class BorderedRect(shapes.BorderedRectangle):
         height: float,
         border_width: float,
         fill_color: Color = Color.WHITE,
-        border_color: Color = Color.CYAN
+        border_color: Color = Color.CYAN,
+        batch: GraphicsBatch = None
     ):
         super().__init__(x=center.x,
                          y=center.y,
