@@ -14,6 +14,8 @@ from pycat.label import Label
 from pycat.shape import Circle, Line, Rectangle, Triangle
 from pycat.sprite import Sprite
 
+from pyglet import shapes
+
 
 class Drawable(Protocol):
     def draw() -> None:
@@ -64,6 +66,7 @@ class Window(BaseWindow):
         self.__drawables: List[Drawable] = []
 
         self.__graphics_batch: GraphicsBatch = GraphicsBatch()
+        self.__batched_shapes: List[shapes._ShapeBase] = []
         self.__label_batch: GraphicsBatch = GraphicsBatch()
 
         # add new sprites/labels to a separate list after update
@@ -173,7 +176,7 @@ class Window(BaseWindow):
         a = Point(x1, y1)
         b = Point(x2, y2)
         line = Line(a, b, width, color=color, batch=self.__graphics_batch)
-        self.__drawables.append(line)  # no reference -> gc collects
+        self.__batched_shapes.append(line)  # no reference -> gc collects
         return line
 
     def create_triangle(
@@ -189,7 +192,7 @@ class Window(BaseWindow):
         c = Point(x3, y3)
         tri = Triangle(a, b, c, color,
                        batch=self.__graphics_batch)
-        self.__drawables.append(tri)
+        self.__batched_shapes.append(tri)  # no reference -> gc collects
         return tri
 
     def create_circle(
@@ -202,7 +205,7 @@ class Window(BaseWindow):
 
         c = Circle(Point(x, y), radius, color=color,
                    batch=self.__graphics_batch)
-        self.__drawables.append(c)
+        self.__batched_shapes.append(c)  # no reference -> gc collects
         return c
 
     def create_rect(
@@ -216,7 +219,7 @@ class Window(BaseWindow):
 
         r = Rectangle(Point(x, y), width, height, color=color,
                       batch=self.__graphics_batch)
-        self.__drawables.append(r)
+        self.__batched_shapes.append(r)  # no reference -> gc collects
         return r
 
     def add_drawable(
@@ -278,8 +281,8 @@ class Window(BaseWindow):
 
         self.__label_batch.draw()
 
-        # for drawable in self.__drawables:
-        #     drawable.draw()
+        for drawable in self.__drawables:
+            drawable.draw()
 
     ##################################################################
     # Key input

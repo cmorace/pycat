@@ -12,7 +12,9 @@ window.add_drawable(Triangle(a, b, c, color=Color.AZURE))
 window.add_drawable(Triangle(o, b, d, color=Color.VERMILION))
 window.add_drawable(Circle(window.center, 200))
 window.add_drawable(Line(a, b, width=4, color=Color.RED))
-window.add_drawable(Arc(window.center, 150, 1.5705, color=Color.AZURE))
+window.add_drawable(Arc(center=window.center,
+                        radius=150,
+                        angle=1.5705, color=Color.AZURE))
 window.add_drawable(BorderedRect(window.center, 150, 200, 10,
                                  fill_color=Color.TEAL,
                                  border_color=Color.AMBER))

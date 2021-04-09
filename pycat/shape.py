@@ -24,7 +24,7 @@ class Line(shapes.Line):
                          y2=b.y,
                          width=width,
                          color=color,
-                         batch=batch._batch)
+                         batch=batch._batch if batch else None)
 
 
 class Triangle(shapes.Triangle):
@@ -43,7 +43,8 @@ class Triangle(shapes.Triangle):
                          y2=b.y,
                          x3=c.x,
                          y3=c.y,
-                         color=color)
+                         color=color,
+                         batch=batch._batch if batch else None)
 
     def get_points(self) -> List[Point]:
         return [Point(self.x, self.y),
@@ -65,7 +66,8 @@ class Circle(shapes.Circle):
                          y=center.y,
                          radius=radius,
                          segments=segments,
-                         color=color)
+                         color=color,
+                         batch=batch._batch if batch else None)
 
     @property
     def center(self) -> Point:
@@ -91,7 +93,8 @@ class Rectangle(shapes.Rectangle):
                          y=center.y,
                          width=width,
                          height=height,
-                         color=color)
+                         color=color,
+                         batch=batch._batch if batch else None)
 
 
 class Arc(shapes.Arc):
@@ -114,7 +117,8 @@ class Arc(shapes.Arc):
                          angle=angle,
                          start_angle=start_angle,
                          closed=is_closed,
-                         color=color)
+                         color=color,
+                         batch=batch._batch if batch else None)
 
 
 class BorderedRect(shapes.BorderedRectangle):
@@ -134,7 +138,8 @@ class BorderedRect(shapes.BorderedRectangle):
                          height=height,
                          border=border_width,
                          color=fill_color,
-                         border_color=border_color)
+                         border_color=border_color,
+                         batch=batch._batch if batch else None)
 
 
 class Polyline():
