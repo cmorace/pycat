@@ -231,6 +231,10 @@ class Window(BaseWindow):
 
     def clear_drawables(self):
         self.__drawables.clear()
+        for shape in self.__batched_shapes:
+            shape.delete()
+        self.__batched_shapes.clear()
+
 
     ##################################################################
     # Background sprite
