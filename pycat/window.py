@@ -29,6 +29,9 @@ T = TypeVar('T', bound=Drawable)
 class SpriteCreationError(Exception):
     pass
 
+class LabelCreationError(Exception):
+    pass
+
 
 class Window(BaseWindow):
     def __init__(self,
@@ -82,12 +85,32 @@ class Window(BaseWindow):
     # Label management
     ##################################################################
 
-    def create_label(self, label_cls: Callable[..., T] = Label) -> T:
+    # todo: use protocol for label_cls type
+    def create_label(
+            self, 
+            label_cls: Callable[..., T] = Label,
+            **kwargs
+            ) -> T:
+        
+        # Sanity check kwargs
+        for arg_name in kwargs:
+            if arg_name not in ['x', 'y', 'text', 'font_size', 'font', 'color', 'opacity']:
+                raise LabelCreationError("You may not set '" + arg_name +
+                                          "' when creating a label")
+
+        # Create an object
         label = label_cls()
         label.y = self.height  # default y set to top of window
         label.on_create()
+
+        # Add to window
         self.__new_labels.append(label)
         self.__label_batch.add_label(label)
+
+        # Override properties
+        for arg_name, arg_value in kwargs.items():
+            setattr(label, arg_name, arg_value)
+
         return label
 
     ##################################################################
@@ -126,7 +149,7 @@ class Window(BaseWindow):
         if 'tag' in kwargs:
             tags.append(kwargs.pop('tag'))
 
-        # Create a class
+        # Create an object
         sprite = sprite_cls(window=self)
         sprite.on_create()
 
