@@ -137,6 +137,8 @@ class KeyEvent:
                     return chr(self.symbol)
             else:
                 return chr(self.symbol)
+        elif self.symbol == KeyCode.ENTER:
+            return '\n'
         else:
             return ""  # key can't be compared to standard string (use KeyCode)
 
