@@ -169,6 +169,10 @@ class Window(BaseWindow):
         self.__graphics_batch.add_sprite(sprite)
         return sprite
 
+    def delete_all_sprites(self):
+        for sprite in self.__sprites:
+            sprite.delete()
+
     def delete_sprites_with_tag(self, tag):
         for sprite in self.__sprites:
             if tag in sprite.tags:
