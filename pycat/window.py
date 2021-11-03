@@ -113,6 +113,13 @@ class Window(BaseWindow):
 
         return label
 
+    def delete_all_labels(self):
+        for label in self.__labels:
+            label.delete()
+
+    def get_all_labels(self):
+        return self.__labels            
+
     ##################################################################
     # Sprite management
     ##################################################################
