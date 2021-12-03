@@ -94,7 +94,7 @@ class Window(BaseWindow):
         
         # Sanity check kwargs
         for arg_name in kwargs:
-            if arg_name not in ['x', 'y', 'text', 'font_size', 'font', 'color', 'opacity']:
+            if arg_name not in ['x', 'y', 'text', 'font_size', 'font', 'color', 'opacity', 'position']:
                 raise LabelCreationError("You may not set '" + arg_name +
                                           "' when creating a label")
 

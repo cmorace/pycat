@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Optional, Set, Tuple, Union
 
 from pyglet.text import Label as PygletLabel
 from pyglet.graphics import OrderedGroup
+from pycat.geometry.point import Point
 
 from pycat.base import Color
 
@@ -16,8 +17,8 @@ class Label:
                  tags: List[str] = []):
 
         self._label = PygletLabel(text, x=x, y=y, group=OrderedGroup(layer))
-        self._label.anchor_x = 'left'
-        self._label.anchor_y = 'top'
+        self._label.anchor_x = 'left' # modifying this seems to cause the label to not be rendered
+        self._label.anchor_y = 'top' # top, center, and bottom are all valid, but not recommended to change
         self._label.font_size = font_size
         self.__layer = layer
         self.__is_deleted = False
@@ -42,6 +43,19 @@ class Label:
     @y.setter
     def y(self, new_y: float):
         self._label.y = new_y
+
+    @property
+    def position(self) -> Point:
+        """The position (x,y) of the label's top-left corner. Note: changing the anchor properties may effect this."""
+        return Point(self._label.x, self._label.y)
+
+    @position.setter
+    def position(self, p: Union[Point, Tuple[float, float]]):
+        if isinstance(p, Point):
+            self._label.x = p.x
+            self._label.y = p.y
+        else:
+            self._label.x, self._label.y = p
 
     @property
     def text(self) -> str:
