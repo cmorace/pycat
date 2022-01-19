@@ -74,7 +74,7 @@ class NumpyImage(ndarray):
         img_format = NumpyImage.get_compatible_format(array)
         h, w = array.shape[:2]
         img_data = ImageData(w, h, img_format.value, array.tobytes())
-        texture = img_data.get_texture()
+        texture: Texture = img_data.get_texture()
         texture.anchor_x = texture.width / 2
         texture.anchor_y = texture.height / 2
         return texture
@@ -121,8 +121,7 @@ class NumpyImage(ndarray):
     @staticmethod
     def get_luminance_texture(array: ndarray) -> Texture:
         lum_array = NumpyImage.get_luminance_array(array)
-        img_format = ImageFormat.L
-        return NumpyImage.get_texture_from_array(lum_array, img_format)
+        return NumpyImage.get_texture_from_array(lum_array)
 
     @staticmethod
     def get_magnitude_array(array: ndarray) -> ndarray:
@@ -137,7 +136,7 @@ class NumpyImage(ndarray):
         NumpyImage.normalize_array(mag_array)
         mag_array *= 255
         return NumpyImage.get_texture_from_array(
-            mag_array.astype(uint8, copy=False), ImageFormat.L)
+            mag_array.astype(uint8, copy=False))
 
     @staticmethod
     def normalize_array(array: ndarray):

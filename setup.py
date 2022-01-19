@@ -14,7 +14,7 @@ setuptools.setup(
     install_requires=[
           'pyglet>=1.5.15',
           'numpy>=1.20.1',
-        #   'triangle>=20200424',
+           #   'triangle>=20200424',
           'Pillow>=8.1.0'  # just used in tool_image_cropper project right now
       ],
     packages=setuptools.find_packages(),
