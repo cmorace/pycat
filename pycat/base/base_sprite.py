@@ -436,8 +436,11 @@ class BaseSprite(WindowEventSubscriber):
         """Change rotation to point towards another sprite."""
         self.point_toward(sprite.position)
 
-    def distance_to(self, point: Point) -> float:
-        return get_distance(self.position, point)
+    def distance_to(self, target: Union[Point, 'BaseSprite']) -> float:
+        if isinstance(target, Point):
+            return get_distance(self.position, target)
+        else:
+            return get_distance(self.position, target.position)
 
     ##################################################################
     # Framework

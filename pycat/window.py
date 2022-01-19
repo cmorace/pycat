@@ -11,7 +11,7 @@ from pycat.base.graphics_batch import GraphicsBatch
 from pycat.debug.draw import draw_sprite_rects
 from pycat.geometry.point import Point
 from pycat.label import Label
-from pycat.shape import Circle, Line, Rectangle, Triangle
+from pycat.shape import Circle, Line, Rectangle, Triangle, Arc
 from pycat.sprite import Sprite
 
 from pyglet import shapes
@@ -238,6 +238,23 @@ class Window(BaseWindow):
     ) -> Circle:
 
         c = Circle(Point(x, y), radius, color=color,
+                   batch=self.__graphics_batch)
+        self.__batched_shapes.append(c)  # no reference -> gc collects
+        return c
+
+    def create_arc(
+        self,
+        x: float = 0,
+        y: float = 0,
+        radius: float = 360,
+        segments: int = None,
+        angle: float = shapes.math.tau,
+        start_angle: float = 0,
+        is_closed: bool = False,
+        color: Color = Color.WHITE
+    ) -> Arc:
+
+        c = Arc(Point(x, y), radius, segments=segments, angle=angle, start_angle=start_angle, is_closed=is_closed, color=color,
                    batch=self.__graphics_batch)
         self.__batched_shapes.append(c)  # no reference -> gc collects
         return c
