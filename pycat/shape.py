@@ -26,6 +26,12 @@ class Line(shapes.Line):
                          color=color,
                          batch=batch._batch if batch else None)
 
+    def set_start_end(self, start: Point, end: Point):
+        self.x = start.x
+        self.y = start.y
+        self.x2 = end.x
+        self.y2 = end.y
+
 
 class Triangle(shapes.Triangle):
 
