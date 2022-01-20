@@ -94,7 +94,7 @@ class Window(BaseWindow):
         
         # Sanity check kwargs
         for arg_name in kwargs:
-            if arg_name not in ['x', 'y', 'text', 'font_size', 'font', 'color', 'opacity', 'position']:
+            if arg_name not in ['x', 'y', 'text', 'font_size', 'font', 'color', 'opacity', 'position', 'layer']:
                 raise LabelCreationError("You may not set '" + arg_name +
                                           "' when creating a label")
 
@@ -143,7 +143,8 @@ class Window(BaseWindow):
                                 'layer',
                                 'position',
                                 'rotation',
-                                'opacity']:
+                                'opacity',
+                                'is_visible']:
                 raise SpriteCreationError("You may not set '" + arg_name +
                                           "' when creating a sprite")
 
