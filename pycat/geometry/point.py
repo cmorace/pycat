@@ -43,9 +43,13 @@ class Point():
 
     def normalize(self):
         mag = self.magnitude()
-        self.x = self.x / mag
-        self.y = self.y / mag
+        if mag != 0:
+            self.x = self.x / mag
+            self.y = self.y / mag
 
     def normalized(self) -> 'Point':
         mag = self.magnitude()
-        return Point(self.x / mag, self.y / mag)
+        if mag == 0:
+            return Point()
+        else:
+            return Point(self.x / mag, self.y / mag)
