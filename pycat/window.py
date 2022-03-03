@@ -438,11 +438,11 @@ class Window(BaseWindow):
         for label in self.__labels:
             label.on_update(dt)
 
-        self.__remove_old_sprites()
-        self.__remove_old_labels()
-
         self.__add_new_sprites()
         self.__add_new_labels()
+
+        self.__remove_old_sprites()
+        self.__remove_old_labels()
 
         if self.__enforce_window_limits:
             for sprite in self.__sprites:
