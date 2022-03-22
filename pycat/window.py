@@ -6,7 +6,7 @@ from pycat.base.base_window import BaseWindow
 from pycat.base.color import Color
 from pycat.base.event.key_event import KeyEvent
 from pycat.base.event.mouse_event import MouseButton, MouseEvent
-from pycat.base.gl import set_sharp_pixel_scaling
+# from pycat.base.gl import set_sharp_pixel_scaling
 from pycat.base.graphics_batch import GraphicsBatch
 from pycat.debug.draw import draw_sprite_rects
 from pycat.geometry.point import Point
@@ -15,6 +15,8 @@ from pycat.shape import Circle, Line, Rectangle, Triangle, Arc
 from pycat.sprite import Sprite
 
 from pyglet import shapes
+from pyglet.gl import (GL_NEAREST, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                       glEnable, glTexParameteri)
 
 
 class Drawable(Protocol):
@@ -87,11 +89,11 @@ class Window(BaseWindow):
 
     # todo: use protocol for label_cls type
     def create_label(
-            self, 
+            self,
             label_cls: Callable[..., T] = Label,
             **kwargs
             ) -> T:
-        
+
         # Sanity check kwargs
         for arg_name in kwargs:
             if arg_name not in ['x', 'y', 'text', 'font_size', 'font', 'color', 'opacity', 'position', 'layer']:
@@ -110,6 +112,8 @@ class Window(BaseWindow):
         # Override properties
         for arg_name, arg_value in kwargs.items():
             setattr(label, arg_name, arg_value)
+        if self.__is_sharp_pixel_scaling:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
 
         return label
 
@@ -175,6 +179,8 @@ class Window(BaseWindow):
                 sprite.add_tag(tag)
 
         self.__graphics_batch.add_sprite(sprite)
+        if self.__is_sharp_pixel_scaling:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         return sprite
 
     def delete_all_sprites(self):
@@ -332,8 +338,8 @@ class Window(BaseWindow):
         if self.draw_sprite_rects:
             draw_sprite_rects(self.__sprites)
 
-        if self.__is_sharp_pixel_scaling:
-            set_sharp_pixel_scaling(True)
+        # if self.__is_sharp_pixel_scaling:
+        #     set_sharp_pixel_scaling(True)
 
         self.__label_batch.draw()
 
@@ -454,12 +460,7 @@ class Window(BaseWindow):
     def run(self,
             draw_function: Callable[[], None] = None,
             update_function: Callable[[float], None] = None,
-            is_sharp_pixel_scaling: bool = False,
             **kwargs):
-
-        if is_sharp_pixel_scaling:
-            self.__is_sharp_pixel_scaling = True
-            set_sharp_pixel_scaling(True)
 
         if draw_function is None:
             draw_function = self.__auto_draw

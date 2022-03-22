@@ -30,7 +30,7 @@ class MusicalSprite2(Sprite):
 
 
 sound_file = [
-    "audio/not_working_on_mac/bonk.m4a",
+    # "audio/not_working_on_mac/bonk.m4a",
     "audio/hit.wav",
     "audio/point.wav",
     "audio/swoosh.wav",

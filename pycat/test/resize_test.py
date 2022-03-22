@@ -1,10 +1,8 @@
 from math import cos, pi, sin
-
-from pycat.base.gl import set_sharp_pixel_scaling
 from pycat.core import Color, Sprite, Window
 from pycat.geometry.point import Point
 
-w = Window(width=800, height=600)
+w = Window(width=800, height=600, is_sharp_pixel_scaling=True)
 
 
 class ResizeColorSprite(Sprite):
@@ -28,18 +26,12 @@ class SharpPixelSprite(Sprite):
 
     def on_create(self):
         self.image = "img/pixelish.png"
+        self.scale_to_width(w.width)
         self.position = Point(self.width, self.height)/2
+        layer = -1
 
 
-s = w.create_sprite(position=w.center, color=Color.AZURE)
-s.scale_to_width(w.width)
-s = w.create_sprite(position=w.center, color=Color.CHARTREUSE)
-s.scale_to_height(w.height)
-s = w.create_sprite(SharpPixelSprite)
-s.scale = 5
-s.position = Point(s.width, s.height)/2
 w.create_sprite(SharpPixelSprite)
 w.create_sprite(ResizeColorSprite)
 
-set_sharp_pixel_scaling(True)
 w.run()

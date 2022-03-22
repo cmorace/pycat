@@ -46,7 +46,8 @@ class Label:
 
     @property
     def position(self) -> Point:
-        """The position (x,y) of the label's top-left corner. Note: changing the anchor properties may effect this."""
+        """The position (x,y) of the label's top-left corner.
+        Note: changing the anchor properties may effect this."""
         return Point(self._label.x, self._label.y)
 
     @position.setter
@@ -64,6 +65,14 @@ class Label:
     @text.setter
     def text(self, new_text: str):
         self._label.text = new_text
+
+    @property
+    def is_visible(self) -> bool:
+        return self.opacity != 0
+
+    @text.setter
+    def is_visible(self, is_visible: bool):
+        self.opacity = 255 if is_visible else 0
 
     @property
     def font_size(self) -> int:

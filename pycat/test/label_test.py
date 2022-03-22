@@ -14,6 +14,7 @@ class CustomLabel(Label):
         self.y = window.height - 2 * self.font_size
         self.y_speed = 0
         self.background = window.create_sprite()
+        self.background.layer = -1
         self.background.width = self.content_width
         self.background.height = self.content_height
         self.background.x = self.x + self.background.width / 2

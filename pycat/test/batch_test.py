@@ -163,7 +163,7 @@ def update():
         flappy_bird.change_animation_frame_duration(0.002)
     for s in sprite_list:
         s.update()
-    window._fps_label.update()
+    # window._fps_label.update()
 
 
 @window.on_draw
@@ -171,7 +171,7 @@ def draw():
     window.clear()
     eye_batch.draw()
     flappy_bird.draw()
-    window._fps_label.draw()
+    # window._fps_label.draw()
 
 
 window.run(on_key_press=[my_key_press, test_key_press],

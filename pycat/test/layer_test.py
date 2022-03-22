@@ -2,7 +2,6 @@ from pycat.core import Window, Sprite
 
 
 class ClickMe(Sprite):
-    # not sure why but I have to double click for this to work
     def on_left_click(self):
         self.layer = max([s.layer for s in sprites])+1
 
