@@ -1,21 +1,24 @@
 """Initilize imports for convenience."""
-from .base_window import BaseWindow
+from .event import MouseButton, MouseEvent
 from .base_sprite import BaseSprite, RotationMode
+from .base_window import BaseWindow
 from .color import Color
-from .numpy_image import NumpyImage, ImageFormat
 from .graphics_batch import GraphicsBatch
 from .image import Animation, AnimationFrame, Image, Texture
+from .numpy_image import ImageFormat, NumpyImage
 
 __all__ = [
-    'BaseWindow',
+    'MouseButton',
+    'MouseEvent',
     'BaseSprite',
     'RotationMode',
+    'BaseWindow',
     'Color',
-    'NumpyImage',
-    'ImageFormat',
     'GraphicsBatch',
     'Animation',
     'AnimationFrame',
     'Image',
     'Texture',
+    'ImageFormat',
+    'NumpyImage',
 ]
