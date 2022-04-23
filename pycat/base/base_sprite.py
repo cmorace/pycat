@@ -368,7 +368,10 @@ class BaseSprite(WindowEventSubscriber):
 
     @texture.setter
     def texture(self, texture: Texture):
-        self._sprite.image = texture
+        if texture is None:
+            self._sprite.image = BaseSprite._default_image
+        else:
+            self._sprite.image = texture
 
     def set_image(self, image: Union[Animation, Texture]):
         """Set the Sprite's Texture or Animation"""
