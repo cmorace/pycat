@@ -1,4 +1,5 @@
 from random import randint
+import string
 
 
 class Color(tuple):
@@ -72,3 +73,16 @@ class Color(tuple):
         green = 255 - c.g
         blue = 255 - c.b
         return Color.RGB(red, green, blue)
+
+    @staticmethod
+    def hex(hex_color: str):
+        hex_color = hex_color.strip('#')
+
+        assert len(hex_color) == 6, 'Hex color must be 6 characters long (excluding # character).'
+        assert all(c in string.hexdigits for c in hex_color), 'Hex color contains non-hex characters.'
+
+        red = int(hex_color[0:2],16)
+        green = int(hex_color[2:4],16)
+        blue = int(hex_color[4:6],16)
+        
+        return Color.RGB(red, green, blue)        
