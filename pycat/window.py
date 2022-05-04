@@ -107,7 +107,8 @@ class Window(BaseWindow):
 
         # Add to window
         self.__new_labels.append(label)
-        self.__label_batch.add_label(label)
+        if not self.__game_loop_running:
+            self.__label_batch.add_label(label)
 
         # Override properties
         for arg_name, arg_value in kwargs.items():
@@ -118,11 +119,14 @@ class Window(BaseWindow):
         return label
 
     def delete_all_labels(self):
-        for label in self.__labels:
+        for label in self.get_all_labels():
             label.delete()
 
     def get_all_labels(self):
-        return self.__labels            
+        return (
+            [l for l in self.__labels if not l.is_deleted]+
+            [l for l in self.__new_labels if not l.is_deleted]
+        )
 
     ##################################################################
     # Sprite management
@@ -185,23 +189,35 @@ class Window(BaseWindow):
         return sprite
 
     def delete_all_sprites(self):
-        for sprite in self.__sprites:
+        for sprite in self.get_all_sprites():
             sprite.delete()
 
     def delete_sprites_with_tag(self, tag):
-        for sprite in self.__sprites:
-            if tag in sprite.tags:
-                sprite.delete()
+        for sprite in self.get_sprites_with_tag(tag):
+            sprite.delete()
 
     def get_sprites_with_tag(self, tag):
-        return [s for s in self.__sprites if tag in s.tags]
+        return (
+            [s for s in self.__sprites if tag in s.tags and not s.is_deleted]+
+            [s for s in self.__new_sprites if tag in s.tags and not s.is_deleted]
+        )
 
     def get_all_sprites(self):
-        return self.__sprites
+        return (
+            [s for s in self.__sprites if not s.is_deleted]+
+            [s for s in self.__new_sprites if not s.is_deleted]
+        )
 
     def dump_all_sprites(self):
-        print('Number of sprites in window: '+str(len(self.__sprites))+'\n\t'
-              + '\n\t'.join([str(s) for s in self.__sprites]))
+        def as_str(sprite):
+            s = ''
+            s += 'New ' if sprite in self.__new_sprites else ''
+            s += 'Del' if sprite.is_deleted else ''
+            s += '\t' + str(sprite)
+            return s
+        debug_sprite_list = self.__sprites + self.__new_sprites
+        print('Number of sprites in window: '+str(len(debug_sprite_list))+'\n\t'
+              + '\n\t'.join([as_str(s) for s in debug_sprite_list]))
 
     ##################################################################
     # Shape management
