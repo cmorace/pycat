@@ -1,5 +1,5 @@
 from typing import List, Tuple, Optional
-from pycat.core import Point, Sprite, Color, Window
+from pycat.core import Point, Sprite, Color, Window, Label
 from pycat.base import NumpyImage
 import json
 from .ldtk_parser import ldtk_from_dict, TilesetDefinition, Level, LayerInstance
@@ -97,6 +97,10 @@ class LdtkFile:
             for ts in self._data.defs.tilesets
         }
 
+        self._rendered_image_tiles: List[Sprite] = []
+        self._rendered_tag_tiles: List[Sprite] = []
+        self._rendered_debug_lables: List[Label] = []
+
 
     def render_level(
         self, 
@@ -106,12 +110,25 @@ class LdtkFile:
         debug_layer: int = 1000,
         debug_font_size: int = 10
     ) -> None:
+
+        for tile in self._rendered_image_tiles:
+            tile.delete()
+        self._rendered_image_tiles = []
         
+        for tile in self._rendered_tag_tiles:
+            tile.delete()
+        self._rendered_tag_tiles = []
+
+        for label in self._rendered_debug_lables:
+            label.delete()
+        self._rendered_debug_lables = []        
+
         for image_tile in self.get_image_tiles_for_level(level_name):
             tile = window.create_sprite(
                 position=image_tile.center, 
                 layer=image_tile.layer,
                 texture=image_tile.get_texture() )
+            self._rendered_image_tiles.append(tile)
 
         for tag_tile in self.get_tag_tiles_for_level(level_name):
             tile = window.create_sprite(
@@ -121,6 +138,8 @@ class LdtkFile:
                 opacity=100 if debug_tags else 0,
                 tag=tag_tile.tag,
                 color=tag_tile.color)
+            self._rendered_tag_tiles.append(tile)
+
             if debug_tags:
                 label = window.create_label(
                     text=tag_tile.tag,
@@ -130,6 +149,7 @@ class LdtkFile:
                 )
                 label.y += label.content_height/2
                 label.x -= label.content_width/2
+                self._rendered_debug_lables.append(label)
 
 
     def get_level(self, level_name: str) -> Optional[Level]:
