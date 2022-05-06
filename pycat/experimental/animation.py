@@ -1,3 +1,20 @@
+class AnimationNotFoundException(Exception):
+    def __init__(self, animation_name: str, animator: 'Animator'):
+        self.animation_name = animation_name
+        self.animator = animator
+
+    def __str__(self):
+        return 'Animation "'+self.animation_name+'" not found in Animator, valid animations: '+str(self.animator._animations.keys())
+
+class EmptyAnimationException(Exception):
+    def __init__(self, animation_name: str):
+        self.animation_name = animation_name
+
+    def __str__(self):
+        return 'Animation "'+self.animation_name+'" has no frames'
+
+
+
 class Animator:
     def __init__(self, animations = None):
         self._animations = {} if animations is None else animations
@@ -8,6 +25,10 @@ class Animator:
         self._speed = 0.2
 
         self._is_playing = False
+
+        for name,images in self._animations.items():
+            if len(images) == 0:
+                raise EmptyAnimationException(name)
 
     def tick(self, dt: float):
         if not self._is_playing:
@@ -28,11 +49,15 @@ class Animator:
         return self._frame
 
     def add(self, name: str, images):
+        if len(images) == 0:
+            raise EmptyAnimationException(name)
         self._animations[name] = images
 
-    def play(self, name: str):        
+    def play(self, name: str):
         if self._current_animation == name:
             return
+        if name not in self._animations.keys():
+            raise AnimationNotFoundException(name, self._animations)
         self._current_animation = name
         self.reset_to_first_frame()
         self._is_playing = True
