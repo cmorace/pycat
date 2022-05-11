@@ -1,10 +1,12 @@
 import numpy
 from pycat.base import NumpyImage
 
+
 class SpriteSheet:
-    def __init__(self, file_name: str, tile_size: int, cell_names=None):
+    def __init__(self, file_name: str, tile_size_x: int, tile_size_y: int, cell_names=None):
         self.img_array = NumpyImage.get_array_from_file(file_name)
-        self.tile_size = tile_size
+        self.tile_size_x = tile_size_x
+        self.tile_size_y = tile_size_y
         self.cell_names = {} if cell_names is None else cell_names
 
     def update_cell_names(self, new_dict):
@@ -22,10 +24,9 @@ class SpriteSheet:
         ]
 
     def get_texture(self, i: int, j: int, flip_lr: bool = False):
-        size = self.tile_size
         cut = self.img_array[                
-            j*size : (j+1)*size,
-            i*size : (i+1)*size,
+            j * self.tile_size_y : (j+1) * self.tile_size_y,
+            i * self.tile_size_x : (i+1) * self.tile_size_x,
             :
         ]
 
@@ -38,7 +39,7 @@ class UniversalLPCSpritesheet(SpriteSheet):
     # https://sanderfrenken.github.io/Universal-LPC-Spritesheet-Character-Generator
 
     def __init__(self, file_name: str):
-        super().__init__(file_name, 64)
+        super().__init__(file_name, 64, 64)
         self.update_cell_names( {'hurt_'+str(i):        (i,0) for i in range(6) })
 
         self.update_cell_names( {'shoot_right_'+str(i): (i,1) for i in range(13) })
