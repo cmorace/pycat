@@ -17,9 +17,10 @@ class SpriteSheet:
         return self.get_texture(index[0],index[1])
 
     def get_textures_by_pattern(self, pattern: str):
+        name_map_sorted = sorted(self.cell_names.items(), key=lambda kvp: kvp[0])
         return [
             self.get_texture(index[0],index[1]) 
-            for name,index in self.cell_names.items() 
+            for name,index in name_map_sorted
             if pattern in name
         ]
 

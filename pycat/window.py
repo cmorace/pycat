@@ -34,6 +34,9 @@ class SpriteCreationError(Exception):
 class LabelCreationError(Exception):
     pass
 
+class SpriteWithTagDoesNotExist(Exception):
+    pass
+
 
 class Window(BaseWindow):
     def __init__(self,
@@ -192,17 +195,23 @@ class Window(BaseWindow):
         for sprite in self.get_all_sprites():
             sprite.delete()
 
-    def delete_sprites_with_tag(self, tag):
+    def delete_sprites_with_tag(self, tag: str):
         for sprite in self.get_sprites_with_tag(tag):
             sprite.delete()
 
-    def get_sprites_with_tag(self, tag):
+    def get_sprite_with_tag(self, tag: str) -> Sprite:
+        sprites = self.get_sprites_with_tag(tag)
+        if len(sprites) == 0:
+            raise SpriteWithTagDoesNotExist('No sprite with the tag "'+tag+'" exists.')
+        return sprites[0] if len(sprites) > 0 else None
+
+    def get_sprites_with_tag(self, tag: str) -> List[Sprite]:
         return (
             [s for s in self.__sprites if tag in s.tags and not s.is_deleted]+
             [s for s in self.__new_sprites if tag in s.tags and not s.is_deleted]
         )
 
-    def get_all_sprites(self):
+    def get_all_sprites(self) -> List[Sprite]:
         return (
             [s for s in self.__sprites if not s.is_deleted]+
             [s for s in self.__new_sprites if not s.is_deleted]
