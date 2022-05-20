@@ -203,7 +203,7 @@ class Window(BaseWindow):
         sprites = self.get_sprites_with_tag(tag)
         if len(sprites) == 0:
             raise SpriteWithTagDoesNotExist('No sprite with the tag "'+tag+'" exists.')
-        return sprites[0] if len(sprites) > 0 else None
+        return sprites[0]
 
     def get_sprites_with_tag(self, tag: str) -> List[Sprite]:
         return (
