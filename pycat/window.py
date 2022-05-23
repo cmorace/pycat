@@ -1,22 +1,21 @@
 from threading import Lock
-from typing import Callable, List, Optional, Protocol, Set, TypeVar
+from typing import Callable, List, Optional, Protocol, Set, TypeVar, Union
+
+from pyglet import shapes
+from pyglet.gl import (GL_NEAREST, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                       glTexParameteri)
 
 from pycat.base.base_sprite import BaseSprite
 from pycat.base.base_window import BaseWindow
 from pycat.base.color import Color
 from pycat.base.event.key_event import KeyEvent
 from pycat.base.event.mouse_event import MouseButton, MouseEvent
-# from pycat.base.gl import set_sharp_pixel_scaling
 from pycat.base.graphics_batch import GraphicsBatch
 from pycat.debug.draw import draw_sprite_rects
 from pycat.geometry.point import Point
 from pycat.label import Label
-from pycat.shape import Circle, Line, Rectangle, Triangle, Arc
+from pycat.shape import Arc, Circle, Line, Rectangle, Triangle
 from pycat.sprite import Sprite
-
-from pyglet import shapes
-from pyglet.gl import (GL_NEAREST, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                       glEnable, glTexParameteri)
 
 
 class Drawable(Protocol):
@@ -31,11 +30,17 @@ T = TypeVar('T', bound=Drawable)
 class SpriteCreationError(Exception):
     pass
 
+
 class LabelCreationError(Exception):
     pass
 
+
 class SpriteWithTagDoesNotExist(Exception):
-    pass
+    def __init__(self, tag: str):
+        self.tag = tag
+
+    def __str__(self):
+        return 'Sprite with tag: "'+self.tag+'" does not exist'
 
 
 class Window(BaseWindow):
@@ -75,14 +80,10 @@ class Window(BaseWindow):
 
         self.__graphics_batch: GraphicsBatch = GraphicsBatch()
         self.__batched_shapes: List[shapes._ShapeBase] = []
-        self.__label_batch: GraphicsBatch = GraphicsBatch()
 
         # add new sprites/labels to a separate list after update
         self.__new_sprites: List[Sprite] = []
         self.__new_labels: List[Label] = []
-
-        # self.__pre_draw: Optional[Callable[[None], None]] = None
-        # self.__post_draw: Optional[Callable[[None], None]] = None
 
         self.__game_loop_running = False
 
@@ -99,9 +100,10 @@ class Window(BaseWindow):
 
         # Sanity check kwargs
         for arg_name in kwargs:
-            if arg_name not in ['x', 'y', 'text', 'font_size', 'font', 'color', 'opacity', 'position', 'layer']:
+            if arg_name not in ['x', 'y', 'text', 'font_size', 'font', 'color',
+                                'opacity', 'position', 'layer']:
                 raise LabelCreationError("You may not set '" + arg_name +
-                                          "' when creating a label")
+                                         "' when creating a label")
 
         # Create an object
         label = label_cls()
@@ -111,7 +113,7 @@ class Window(BaseWindow):
         # Add to window
         self.__new_labels.append(label)
         if not self.__game_loop_running:
-            self.__label_batch.add_label(label)
+            self.__add_new_labels()
 
         # Override properties
         for arg_name, arg_value in kwargs.items():
@@ -127,8 +129,8 @@ class Window(BaseWindow):
 
     def get_all_labels(self):
         return (
-            [l for l in self.__labels if not l.is_deleted]+
-            [l for l in self.__new_labels if not l.is_deleted]
+            [label for label in self.__labels if not label.is_deleted] +
+            [label for label in self.__new_labels if not label.is_deleted]
         )
 
     ##################################################################
@@ -202,31 +204,31 @@ class Window(BaseWindow):
     def get_sprite_with_tag(self, tag: str) -> Sprite:
         sprites = self.get_sprites_with_tag(tag)
         if len(sprites) == 0:
-            raise SpriteWithTagDoesNotExist('No sprite with the tag "'+tag+'" exists.')
+            raise SpriteWithTagDoesNotExist(tag)
         return sprites[0]
 
     def get_sprites_with_tag(self, tag: str) -> List[Sprite]:
         return (
-            [s for s in self.__sprites if tag in s.tags and not s.is_deleted]+
-            [s for s in self.__new_sprites if tag in s.tags and not s.is_deleted]
+         [s for s in self.__sprites if tag in s.tags and not s.is_deleted] +
+         [s for s in self.__new_sprites if tag in s.tags and not s.is_deleted]
         )
 
     def get_all_sprites(self) -> List[Sprite]:
         return (
-            [s for s in self.__sprites if not s.is_deleted]+
+            [s for s in self.__sprites if not s.is_deleted] +
             [s for s in self.__new_sprites if not s.is_deleted]
         )
 
     def dump_all_sprites(self):
-        def as_str(sprite):
+        def as_str(sprite: Sprite):
             s = ''
             s += 'New ' if sprite in self.__new_sprites else ''
             s += 'Del' if sprite.is_deleted else ''
             s += '\t' + str(sprite)
             return s
         debug_sprite_list = self.__sprites + self.__new_sprites
-        print('Number of sprites in window: '+str(len(debug_sprite_list))+'\n\t'
-              + '\n\t'.join([as_str(s) for s in debug_sprite_list]))
+        print('Number of sprites in window: '+str(len(debug_sprite_list)) +
+              '\n\t\n\t'.join([as_str(s) for s in debug_sprite_list]))
 
     ##################################################################
     # Shape management
@@ -287,8 +289,9 @@ class Window(BaseWindow):
         color: Color = Color.WHITE
     ) -> Arc:
 
-        c = Arc(Point(x, y), radius, segments=segments, angle=angle, start_angle=start_angle, is_closed=is_closed, color=color,
-                   batch=self.__graphics_batch)
+        c = Arc(Point(x, y), radius, segments=segments, angle=angle,
+                start_angle=start_angle, is_closed=is_closed, color=color,
+                batch=self.__graphics_batch)
         self.__batched_shapes.append(c)  # no reference -> gc collects
         return c
 
@@ -319,7 +322,6 @@ class Window(BaseWindow):
             shape.delete()
         self.__batched_shapes.clear()
 
-
     ##################################################################
     # Background sprite
     ##################################################################
@@ -347,13 +349,9 @@ class Window(BaseWindow):
     # Drawing
     ##################################################################
 
-    def set_pre_draw(self, pre_draw_func: Callable[[None], None]):
-        self.__pre_draw = pre_draw_func
-
-    def set_post_draw(self, post_draw_func: Callable[[None], None]):
-        self.__post_draw = post_draw_func
-
     def __auto_draw(self):
+        if self.__is_sharp_pixel_scaling:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         self.clear()
 
         if self.__background_sprite:
@@ -364,11 +362,6 @@ class Window(BaseWindow):
         if self.draw_sprite_rects:
             draw_sprite_rects(self.__sprites)
 
-        # if self.__is_sharp_pixel_scaling:
-        #     set_sharp_pixel_scaling(True)
-
-        self.__label_batch.draw()
-
         for drawable in self.__drawables:
             drawable.draw()
 
@@ -376,13 +369,19 @@ class Window(BaseWindow):
     # Key input
     ##################################################################
 
-    def is_key_pressed(self, keycode: int) -> bool:
+    def is_key_pressed(self, keycode: Union[int, str]) -> bool:
+        if isinstance(keycode, str):
+            keycode = ord(keycode)
         return keycode in self.__keys
 
-    def is_key_down(self, keycode: int) -> bool:
+    def is_key_down(self, keycode: Union[int, str]) -> bool:
+        if isinstance(keycode, str):
+            keycode = ord(keycode)
         return keycode in self.__keys_down
 
-    def is_key_up(self, keycode: int) -> bool:
+    def is_key_up(self, keycode: Union[int, str]) -> bool:
+        if isinstance(keycode, str):
+            keycode = ord(keycode)
         return keycode in self.__keys_up
 
     def __on_key_press(self, e: KeyEvent):
