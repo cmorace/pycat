@@ -39,11 +39,14 @@ window.run()
 
 `window.run()` should be the final line in the file.
 
-### Getting sprites
+### Managing sprites
 
 ```python
 window.get_all_sprites()
-...
+window.get_sprites_with_tag('enemy')
+
+window.delete_all_sprites()
+window.delete_sprites_with_tag('enemy')
 ```
 
 ## Sprites
@@ -83,6 +86,7 @@ player.x = 200
 #### Combinations
 
 All three methods may be combined. However, note the ordering carefully: 
+
 1. properties are set in `on_create`, so `x=200` at the beginning
 2. `create_sprite` may override properties, so `x=200` is changed to `x=300`
 3. properties may be modified after creation, so finally `x=300` is changed to `x=400`
@@ -112,6 +116,16 @@ class Player(Sprite):
 #### Position
 
 #### Rotation
+
+Normally a sprite will rotate based on its `self.rotation` property. However, if you want to override that you can set `self.rotation_mode`:
+
+```python
+def on_create(self):
+    self.rotation_mode = RotationMode.ALL_AROUND
+    self.rotation_mode = RotationMode.RIGHT_LEFT
+    self.rotation_mode = RotationMode.MIRROR
+    self.rotation_mode = RotationMode.NO_ROTATION
+```
 
 #### Appearance
 
