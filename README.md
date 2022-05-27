@@ -265,6 +265,33 @@ To cancel a scheduled repeating action:
 Scheduler.cancel_update(create_enemy)
 ```
 
+## LDTK
+
+```python
+from pycat.experimental.ldtk import LdtkFile
+
+ldtk_file = LdtkFile('level_file_name.ldtk')
+
+window = Window()
+
+ldtk_file.render_level(window,'Level_0',debug_tags=True)
+
+window.run()
+```
+
+## Working with images
+
+The following snippet cuts a segment out of an image and then uses it as a texture for a sprite:
+
+```python
+image = NumpyImage.get_array_from_file('file_name.png')
+
+segment = image[row_start: row_end, col_start: col_end, :]
+
+sprite.texture = NumpyImage.get_texture_from_array(segment)
+```
+
+
 
 
 
