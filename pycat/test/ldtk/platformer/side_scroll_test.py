@@ -1,6 +1,6 @@
 from posixpath import dirname
 from pycat.core import Window, Sprite
-from pycat.experimental.level_entities import LevelData, get_levels_entities
+from pycat.experimental.ldtk_level_entities import LevelData, get_levels_entities
 from os.path import dirname
 from typing import List
 
