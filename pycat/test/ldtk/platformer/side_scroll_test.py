@@ -31,10 +31,6 @@ class ScrollableLevel(Sprite):
                                 opacity=110)
             self.sprites.append(s)
 
-    # def update_entities_x(self, dx):
-    #     for s in self.sprites:
-    #         s.x += dx
-
     def on_update(self, dt):
         if w.is_key_pressed('a'):
             w.offset.x += self.speed
