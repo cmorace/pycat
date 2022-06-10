@@ -1,11 +1,12 @@
-from posixpath import dirname
-from pycat.core import Window, Sprite
-from pycat.experimental.level_entities import LevelData, get_levels_entities
 from os.path import dirname
 from typing import List
 
+from pycat.core import Sprite, Window
+from pycat.experimental.ldtk_level_entities import (LevelData,
+                                                    get_levels_entities)
+
 LEVEL_IMAGE_RELPATH = 'platformer/png/'
-LDTK_PATH_PATH = dirname(__file__)+'/platformer.ldtk'
+LDTK_PATH = dirname(__file__)+'/platformer.ldtk'
 w = Window(is_sharp_pixel_scaling=True,
            enforce_window_limits=False)
 
@@ -30,25 +31,21 @@ class ScrollableLevel(Sprite):
                                 opacity=110)
             self.sprites.append(s)
 
-    def update_entities_x(self, dx):
-        for s in self.sprites:
-            s.x += dx
+    # def update_entities_x(self, dx):
+    #     for s in self.sprites:
+    #         s.x += dx
 
     def on_update(self, dt):
         if w.is_key_pressed('a'):
-            prev_x = self.x
-            self.x += self.speed
-            self.x = min(self.x, self.width/2)
-            self.update_entities_x(self.x-prev_x)
+            w.offset.x += self.speed
+            w.offset.x = min(w.offset.x, 0)
         if w.is_key_pressed('d'):
-            prev_x = self.x
-            self.x -= self.speed
-            self.x = max(self.x, w.width-self.width/2)
-            self.update_entities_x(self.x-prev_x)
+            w.offset.x -= self.speed
+            w.offset.x = max(w.offset.x, w.width-self.width)
 
 
 level = w.create_sprite(ScrollableLevel)
-levels_entities = get_levels_entities(LDTK_PATH_PATH)
+levels_entities = get_levels_entities(LDTK_PATH)
 level.create_entities(scale=3, level_entities=levels_entities[0])
 
 w.run()

@@ -3,7 +3,8 @@ from typing import Callable, List, Optional, Protocol, Set, TypeVar, Union
 
 from pyglet import shapes
 from pyglet.gl import (GL_NEAREST, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                       glTexParameteri)
+                       glPopMatrix, glPushMatrix, glTexParameteri,
+                       glTranslatef)
 
 from pycat.base.base_sprite import BaseSprite
 from pycat.base.base_window import BaseWindow
@@ -86,6 +87,7 @@ class Window(BaseWindow):
         self.__new_labels: List[Label] = []
 
         self.__game_loop_running = False
+        self.offset = Point()
 
     ##################################################################
     # Label management
@@ -309,10 +311,7 @@ class Window(BaseWindow):
         self.__batched_shapes.append(r)  # no reference -> gc collects
         return r
 
-    def add_drawable(
-        self,
-        drawable: T
-    ) -> T:
+    def add_drawable(self, drawable: T) -> T:
         self.__drawables.append(drawable)
         return drawable
 
@@ -353,6 +352,8 @@ class Window(BaseWindow):
         if self.__is_sharp_pixel_scaling:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         self.clear()
+        glPushMatrix()
+        glTranslatef(self.offset.x, self.offset.y, 0)
 
         if self.__background_sprite:
             self.__background_sprite.draw()
@@ -364,6 +365,7 @@ class Window(BaseWindow):
 
         for drawable in self.__drawables:
             drawable.draw()
+        glPopMatrix()
 
     ##################################################################
     # Key input
