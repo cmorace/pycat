@@ -405,13 +405,13 @@ class Window(BaseWindow):
         p = e.position
         for sprite in self.__sprites:
 
-            if sprite.contains_point(p):
+            if sprite.is_visible and sprite.contains_point(p):
                 sprite.on_click(e)
-                if e.button == MouseButton.LEFT:
+                if e.button is MouseButton.LEFT:
                     sprite.on_left_click()
 
             sprite.on_click_anywhere(e)
-            if e.button == MouseButton.LEFT:
+            if e.button is MouseButton.LEFT:
                 sprite.on_left_click_anywhere()
 
     ##################################################################
