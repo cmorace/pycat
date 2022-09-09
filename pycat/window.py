@@ -402,7 +402,7 @@ class Window(BaseWindow):
     ##################################################################
 
     def __on_mouse_press(self, e: MouseEvent):
-        p = e.position
+        p = e.position - self.offset
         for sprite in self.__sprites:
 
             if sprite.is_visible and sprite.contains_point(p):
