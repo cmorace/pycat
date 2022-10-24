@@ -1,5 +1,6 @@
 import numpy
-from pycat.base import NumpyImage
+from typing import List
+from pycat.base import NumpyImage, Texture
 
 
 class SpriteSheet:
@@ -12,11 +13,11 @@ class SpriteSheet:
     def update_cell_names(self, new_dict):
         self.cell_names.update(new_dict)
 
-    def get_texture_by_name(self, name: str):
+    def get_texture_by_name(self, name: str) -> Texture:
         index = self.cell_names[name]
         return self.get_texture(index[0],index[1])
 
-    def get_textures_by_pattern(self, pattern: str):
+    def get_textures_by_pattern(self, pattern: str) -> List[Texture]:
         name_map_sorted = sorted(self.cell_names.items(), key=lambda kvp: kvp[0])
         return [
             self.get_texture(index[0],index[1]) 
@@ -24,7 +25,7 @@ class SpriteSheet:
             if pattern in name
         ]
 
-    def get_texture(self, i: int, j: int, flip_lr: bool = False):
+    def get_texture(self, i: int, j: int, flip_lr: bool = False) -> Texture:
         cut = self.img_array[                
             j * self.tile_size_y : (j+1) * self.tile_size_y,
             i * self.tile_size_x : (i+1) * self.tile_size_x,
@@ -34,6 +35,18 @@ class SpriteSheet:
         return NumpyImage.get_texture_from_array(
             numpy.fliplr(cut) if flip_lr else cut)
 
+    def get_all_textures(self, top_to_bottom: bool = True) -> List[Texture]:
+        # Returns all textures from left to right along the top row, then the second top row, etc.
+        # Set top_to_bottom=False to start at the bottom row.
+
+        (img_height, img_width, _) = self.img_array.shape
+        num_tiles_x = int(img_width/self.tile_size_x)
+        num_tiles_y = int(img_height/self.tile_size_y)
+        
+        i_range = range(num_tiles_x)
+        j_range = reversed(range(num_tiles_y)) if top_to_bottom else range(num_tiles_y)
+
+        return [self.get_texture(i,j) for j in j_range for i in i_range]
 
 class UniversalLPCSpritesheet(SpriteSheet):
     # Loads sprites created with

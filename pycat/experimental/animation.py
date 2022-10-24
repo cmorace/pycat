@@ -25,6 +25,7 @@ class Animator:
         self._speed = 0.2
 
         self._is_playing = False
+        self._is_looping = True
 
         for name,images in self._animations.items():
             if len(images) == 0:
@@ -41,7 +42,10 @@ class Animator:
 
             animation = self._animations[self._current_animation]
             if self._frame_idx == len(animation)-1:
-                self._frame_idx = 0
+                if self._is_looping:
+                    self._frame_idx = 0
+                else:
+                    self._is_playing = False
             else:
                 self._frame_idx += 1
             self._frame = animation[self._frame_idx]
@@ -53,7 +57,7 @@ class Animator:
             raise EmptyAnimationException(name)
         self._animations[name] = images
 
-    def play(self, name: str):
+    def play(self, name: str, loop: bool = True):
         if self._current_animation == name:
             return
         if name not in self._animations.keys():
@@ -61,6 +65,7 @@ class Animator:
         self._current_animation = name
         self.reset_to_first_frame()
         self._is_playing = True
+        self._is_looping = loop
 
     def stop(self):
         self._is_playing = False
@@ -70,6 +75,13 @@ class Animator:
         self._frame_idx = 0
         self._frame = self._animations[self._current_animation][self._frame_idx]
 
+    @property
+    def is_looping(self):
+        return self._is_looping
+
+    @property
+    def is_playing(self):
+        return self._is_playing
 
     @property
     def speed(self):
