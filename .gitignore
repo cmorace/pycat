@@ -7,3 +7,6 @@ pycat.egg-info/
 **/__pycache__/
 .python-version
 **.mypy_cache/
+**.coverage
+**.pytest_cache
+**htmlcov

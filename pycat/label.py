@@ -1,7 +1,20 @@
 from typing import List, Optional, Set, Tuple, Union
 
 from pyglet.text import Label as PygletLabel
-from pyglet.graphics import OrderedGroup
+
+# Compatibility import for pyglet 2.0+
+try:
+    from pyglet.graphics import OrderedGroup
+    # For pyglet < 2.0
+    def _create_ordered_group(order):
+        return OrderedGroup(order)
+except ImportError:
+    # In pyglet 2.0+, OrderedGroup was merged into Group
+    from pyglet.graphics import Group as OrderedGroup
+    # For pyglet >= 2.0
+    def _create_ordered_group(order):
+        return OrderedGroup(order=order)
+
 from pycat.geometry.point import Point
 
 from pycat.base import Color
@@ -16,7 +29,7 @@ class Label:
                  font_size: int = 20,
                  tags: List[str] = []):
 
-        self._label = PygletLabel(text, x=x, y=y, group=OrderedGroup(layer))
+        self._label = PygletLabel(text, x=x, y=y, group=_create_ordered_group(layer))
         self._label.anchor_x = 'left' # modifying this seems to cause the label to not be rendered
         self._label.anchor_y = 'top' # top, center, and bottom are all valid, but not recommended to change
         self._label.font_size = font_size
@@ -121,7 +134,7 @@ class Label:
     @layer.setter
     def layer(self, layer: int):
         self.__layer = layer
-        self._label._init_groups(OrderedGroup(layer))
+        self._label.group = _create_ordered_group(layer)
 
     @property
     def tags(self):

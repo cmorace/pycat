@@ -1,8 +1,8 @@
 # pycat: A Python game framework simplifying game developement with pyglet.
 
-## Students: To install or update 
+## Users: To install or update 
 
-run `pip install git+https://bitbucket.org/dwhite0/pycat.git -U`
+run `pip install git+https://github.com/cmorace/pycat.git -U`
 
 ## To install for development
 
@@ -290,15 +290,3 @@ segment = image[row_start: row_end, col_start: col_end, :]
 
 sprite.texture = NumpyImage.get_texture_from_array(segment)
 ```
-
-
-
-
-
-
-
-
-
-
-
-

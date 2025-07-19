@@ -2,9 +2,8 @@ from threading import Lock
 from typing import Callable, List, Optional, Protocol, Set, TypeVar, Union
 
 from pyglet import shapes
-from pyglet.gl import (GL_NEAREST, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                       glPopMatrix, glPushMatrix, glTexParameteri,
-                       glTranslatef)
+from pyglet.gl import GL_NEAREST, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glTexParameteri
+from pyglet.math import Mat4, Vec3
 
 from pycat.base.base_sprite import BaseSprite
 from pycat.base.base_window import BaseWindow
@@ -352,8 +351,16 @@ class Window(BaseWindow):
         if self.__is_sharp_pixel_scaling:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         self.clear()
-        glPushMatrix()
-        glTranslatef(self.offset.x, self.offset.y, 0)
+        
+        # Apply window offset using modern pyglet 2.0+ view matrix
+        has_offset = self.offset.x != 0 or self.offset.y != 0
+        if has_offset:
+            # Create translation matrix for the offset
+            offset_matrix = Mat4.from_translation(Vec3(self.offset.x, self.offset.y, 0))
+            # Store the original view matrix to restore later
+            original_view = self._window.view
+            # Apply the offset transformation
+            self._window.view = offset_matrix @ original_view
 
         if self.__background_sprite:
             self.__background_sprite.draw()
@@ -365,7 +372,10 @@ class Window(BaseWindow):
 
         for drawable in self.__drawables:
             drawable.draw()
-        glPopMatrix()
+
+        # Restore original view matrix if we modified it
+        if has_offset:
+            self._window.view = original_view
 
     ##################################################################
     # Key input

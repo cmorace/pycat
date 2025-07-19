@@ -13,7 +13,19 @@ from pycat.math import (get_degrees_from_direction,
                         get_distance, get_rotated_point)
 
 from pyglet.sprite import Sprite as PygletSprite
-from pyglet.graphics import OrderedGroup
+
+# Compatibility import for pyglet 2.0+
+try:
+    from pyglet.graphics import OrderedGroup
+    # For pyglet < 2.0
+    def _create_ordered_group(order):
+        return OrderedGroup(order)
+except ImportError:
+    # In pyglet 2.0+, OrderedGroup was merged into Group
+    from pyglet.graphics import Group as OrderedGroup
+    # For pyglet >= 2.0
+    def _create_ordered_group(order):
+        return OrderedGroup(order=order)
 
 
 class RotationMode(Enum):
@@ -51,7 +63,7 @@ class BaseSprite(WindowEventSubscriber):
         self._sprite = PygletSprite(image,
                                     x, y,
                                     subpixel=True,
-                                    group=OrderedGroup(layer))
+                                    group=_create_ordered_group(layer))
         self.__tags: Set[str] = set()
         self.__image_file = ""
         self.__rotation = 0.0
@@ -204,7 +216,7 @@ class BaseSprite(WindowEventSubscriber):
     @layer.setter
     def layer(self, layer: int):
         self.__layer = layer
-        self._sprite.group = OrderedGroup(layer)
+        self._sprite.group = _create_ordered_group(layer)
         if self._sprite.batch:
             self._sprite.batch.invalidate()
 
