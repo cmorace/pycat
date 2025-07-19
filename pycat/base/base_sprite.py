@@ -312,7 +312,9 @@ class BaseSprite(WindowEventSubscriber):
 
         Changes the tint of the sprite image. RGB values in [0,255] range
         """
-        return Color.RGB(*self._sprite.color)
+        # pyglet sprite.color returns RGBA, but we only want RGB
+        r, g, b, _ = self._sprite.color
+        return Color.RGB(r, g, b)
 
     @color.setter
     def color(self, color: Color.RGB):

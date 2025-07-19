@@ -116,3 +116,15 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "pyglet: mark test as pyglet compatibility test"
     )
+    
+    # Enable headless-like behavior for CI environments
+    if os.environ.get('CI') or os.environ.get('PYCAT_HEADLESS'):
+        # Mock graphics components early to avoid import issues
+        import sys
+        from unittest.mock import Mock
+        
+        # Mock pyglet modules that might cause issues in headless environments
+        if 'pyglet.gl' not in sys.modules:
+            sys.modules['pyglet.gl'] = Mock()
+        if 'pyglet.graphics' not in sys.modules:
+            sys.modules['pyglet.graphics'] = Mock()

@@ -76,13 +76,15 @@ make clean         # Clean up test artifacts
 
 For environments without a display (like CI), use headless mode:
 ```bash
-PYGLET_HEADLESS=1 pytest tests/
+make test-headless
 ```
 
-On Linux with xvfb:
+Or set environment variable for custom headless testing:
 ```bash
-xvfb-run -a pytest tests/
+PYCAT_HEADLESS=1 pytest tests/
 ```
+
+The headless mode uses mocking to avoid graphics context issues on systems that don't support EGL or other graphics libraries.
 
 ## Test Categories
 
@@ -187,9 +189,10 @@ open htmlcov/index.html
 
 ### Graphics Context Errors
 If you see OpenGL or graphics context errors:
-1. Use headless mode: `PYGLET_HEADLESS=1 pytest tests/`
-2. On Linux, install xvfb: `sudo apt-get install xvfb`
-3. Run with xvfb: `xvfb-run -a pytest tests/`
+
+1. Use headless mode: `make test-headless`
+2. Set environment variable: `PYCAT_HEADLESS=1 pytest tests/`
+3. On Linux, you can also try xvfb: `xvfb-run -a pytest tests/`
 
 ### Import Errors
 If you see import errors:
